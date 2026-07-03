@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KDP Empire Builder - Vercel Edition</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700&family=Fira+Code:wght@400;600&display=swap');
@@ -38,6 +41,11 @@
             background-position: right 1rem center;
             background-size: 1em;
         }
+
+        /* Stili dinamici per l'editor del manoscritto */
+        .style-saggistica { font-family: Georgia, serif; line-height: 1.8; font-size: 1.05rem; }
+        .style-romanzo { font-family: 'Times New Roman', Times, serif; line-height: 1.6; font-size: 1.1rem; }
+        .style-manuale { font-family: 'Inter', sans-serif; line-height: 1.5; font-size: 0.95rem; }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 pb-24">
@@ -190,11 +198,23 @@
                 </div>
 
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 border-b border-slate-700 pb-2">
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="file-text" class="text-amber-500 w-5 h-5"></i> Manoscritto e Retrocopertina
+                            <i data-lucide="file-text" class="text-amber-500 w-5 h-5"></i> Manoscritto & Editor
                         </h2>
-                        <span class="text-xs font-mono bg-slate-800 px-2 py-1 rounded text-amber-400 border border-slate-700" id="wordCount">0 parole</span>
+                        
+                        <!-- SELETTORE STILE CONVERSIONE (NUOVO) -->
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <div class="bg-slate-800 rounded-lg p-1.5 flex items-center border border-slate-600 w-full">
+                                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 whitespace-nowrap"><i data-lucide="layout" class="w-3 h-3 inline mr-1 mb-0.5"></i> Stile Rendering:</label>
+                                <select id="bookStyle" onchange="updateEditorStyle()" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer text-sm w-full">
+                                    <option value="saggistica" class="bg-slate-800">Saggistica Pratica</option>
+                                    <option value="romanzo" class="bg-slate-800">Romanzo / Narrativa</option>
+                                    <option value="manuale" class="bg-slate-800">Manuale Tecnico</option>
+                                </select>
+                            </div>
+                            <span class="text-xs font-mono bg-slate-800 px-2 py-1.5 rounded text-amber-400 border border-slate-700 whitespace-nowrap" id="wordCount">0 par.</span>
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -203,8 +223,11 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Contenuto Libro</label>
-                        <textarea id="manuscriptContent" rows="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-5 py-4 text-slate-200 text-sm focus:outline-none focus:border-amber-500 transition-colors resize-y leading-relaxed font-serif"></textarea>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1 flex justify-between">
+                            <span>Contenuto Libro (Live Preview)</span>
+                            <span class="text-emerald-500 font-normal lowercase tracking-normal">Il font riflette lo stile finale del PDF</span>
+                        </label>
+                        <textarea id="manuscriptContent" rows="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-6 py-6 text-slate-200 focus:outline-none focus:border-amber-500 transition-all resize-y style-saggistica" placeholder="Il contenuto del libro apparirà qui..."></textarea>
                     </div>
                 </div>
 
@@ -229,6 +252,7 @@
         <!-- Fase 5: Esportazione KDP -->
         <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl mt-8 border-t-4 border-t-amber-500">
             <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP</h2>
+            <p class="text-center text-slate-400 text-sm mb-6">Il PDF dell'interno verrà formattato seguendo automaticamente lo "Stile Rendering" selezionato sopra.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
                 <div class="md:col-span-2 flex items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
@@ -282,6 +306,11 @@
     </div>
 
     <script>
+        // =========================================================================
+        // FIX FONDAMENTALE PER JSPDF
+        // =========================================================================
+        window.jsPDF = window.jspdf.jsPDF;
+
         lucide.createIcons();
 
         let generatedTOC = [];
@@ -309,9 +338,22 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
-        // =========================================================================
-        // NUOVA FUNZIONE: COMUNICA CON IL BACKEND VERCEL
-        // =========================================================================
+        // Gestione Cambio Stile in tempo reale (Live Preview)
+        function updateEditorStyle() {
+            const style = document.getElementById('bookStyle').value;
+            const editor = document.getElementById('manuscriptContent');
+            
+            // Rimuove vecchie classi
+            editor.classList.remove('style-saggistica', 'style-romanzo', 'style-manuale');
+            
+            // Aggiunge la nuova
+            editor.classList.add(`style-${style}`);
+            
+            if(!agentActive) {
+                logAgent(`Stile visivo aggiornato: ${style.toUpperCase()}`);
+            }
+        }
+
         async function fetchAIWithRetry(prompt, schema = null, retries = 3, customSystemInstruction = null) {
             const provider = document.getElementById('aiProvider').value;
             const genLang = document.getElementById('genLang').value;
@@ -321,7 +363,6 @@
             let delay = 1000;
             for (let i = 0; i < retries; i++) {
                 try {
-                    // Chiamata all'API di Vercel invece che ai server esterni
                     const response = await fetch('/api/generate', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -335,11 +376,8 @@
                     
                     const data = await response.json();
                     
-                    if (schema) {
-                        return data; // Il server restituisce già l'oggetto JSON formattato
-                    } else {
-                        return data.text; // Il server restituisce il campo text
-                    }
+                    if (schema) { return data; } 
+                    else { return data.text; }
 
                 } catch (error) {
                     if (i === retries - 1) throw error;
@@ -348,10 +386,6 @@
                 }
             }
         }
-
-        // =========================================================================
-        // MOTORE AGENTICO (AUTOPILOTA)
-        // =========================================================================
 
         function logAgent(msg) {
             const terminal = document.getElementById('agentLogOutput');
@@ -391,23 +425,23 @@
                 logAgent("Avvio Data Mining su tendenze globali e discrepanze di mercato...");
                 const idea = await agenticMarketResearch();
                 document.getElementById('rawIdea').value = idea;
-                logAgent(`Trovata nicchia ad alta conversione (Blue Ocean): "${idea}"`);
+                logAgent(`Trovata nicchia ad alta conversione: "${idea}"`);
 
-                logAgent("Generazione architettura KDP (Keywords, SEO, Struttura)...");
+                logAgent("Generazione architettura KDP e scelta stile ad alta conversione...");
                 await generateBlueprintCore(idea);
-                logAgent("Blueprint completato. Indice e Keyword estratte.");
+                logAgent("Blueprint completato. Indice, Keyword e Stile estratti.");
 
                 logAgent("Avvio rete neurale per stesura manoscritto (10 capitoli)...");
                 await generateFullBookCore();
-                logAgent("Manoscritto completato con successo. Formattazione verificata.");
+                logAgent("Manoscritto completato con successo. L'editor è pronto per la revisione manuale.");
 
                 logAgent("Generazione moduli di neuromarketing per A+ Content...");
                 await generateAPlusCore();
                 logAgent("Copy persuasivo A+ generato.");
 
-                logAgent("Compilazione ed esportazione file (PDF e HTML)...");
+                logAgent("Compilazione ed esportazione file (PDF impaginato e HTML)...");
                 generateKindle(); generateInterior(); generateCover();
-                logAgent("File scaricati in locale. Libro pronto per l'upload su Amazon KDP.");
+                logAgent("File scaricati. Libro pronto per l'upload su Amazon KDP.");
 
                 startCountdownForNextBook();
 
@@ -452,15 +486,11 @@
             }, 1000);
         }
 
-        // =========================================================================
-        // FUNZIONI CORE 
-        // =========================================================================
-
         async function triggerManualBlueprint() {
             const idea = document.getElementById('rawIdea').value.trim();
             if (!idea) return showModal("Attenzione", "Inserisci un'idea prima.", "text-red-500");
             await generateBlueprintCore(idea);
-            showModal("Blueprint Completato", "L'analisi di mercato è terminata.", "text-emerald-500");
+            showModal("Blueprint Completato", "Analisi di mercato terminata. Verifica lo stile impostato per l'editor.", "text-emerald-500");
         }
 
         async function generateBlueprintCore(ideaText) {
@@ -477,7 +507,8 @@
             3. 7 keyword long-tail esatte.
             4. 3 categorie Amazon.
             5. Testo per la quarta di copertina (AIDA).
-            6. Sommario (TOC) di ESATTAMENTE 10 capitoli.`;
+            6. Sommario (TOC) di ESATTAMENTE 10 capitoli.
+            7. Scegli lo stile di formattazione interno migliore per massimizzare le conversioni di questa nicchia, scegliendo ESATTAMENTE una di queste tre parole: "saggistica", "romanzo", "manuale".`;
 
             const schema = {
                 type: "OBJECT",
@@ -485,8 +516,9 @@
                     title: { type: "STRING" }, subtitle: { type: "STRING" },
                     keywords: { type: "ARRAY", items: { type: "STRING" } },
                     categories: { type: "ARRAY", items: { type: "STRING" } },
-                    back_cover: { type: "STRING" }, toc: { type: "ARRAY", items: { type: "STRING" } }
-                }, required: ["title", "subtitle", "keywords", "categories", "back_cover", "toc"]
+                    back_cover: { type: "STRING" }, toc: { type: "ARRAY", items: { type: "STRING" } },
+                    book_style: { type: "STRING" } // Aggiunto per far decidere all'AI
+                }, required: ["title", "subtitle", "keywords", "categories", "back_cover", "toc", "book_style"]
             };
 
             try {
@@ -494,6 +526,15 @@
                 document.getElementById('bookTitle').value = result.title;
                 document.getElementById('bookSubtitle').value = result.subtitle;
                 document.getElementById('backCoverText').value = result.back_cover;
+                
+                // Imposta lo stile scelto dall'AI e aggiorna la preview
+                const styleSelect = document.getElementById('bookStyle');
+                if(['saggistica', 'romanzo', 'manuale'].includes(result.book_style.toLowerCase())) {
+                    styleSelect.value = result.book_style.toLowerCase();
+                } else {
+                    styleSelect.value = 'saggistica';
+                }
+                updateEditorStyle();
                 
                 generatedKeywords = result.keywords;
                 generatedCategories = result.categories;
@@ -512,7 +553,7 @@
         async function triggerManualWrite() {
             if (generatedTOC.length === 0) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
             await generateFullBookCore();
-            showModal("Libro Completato", "Il manoscritto è pronto.", "text-emerald-500");
+            showModal("Libro Completato", "Il manoscritto è pronto. Controllalo nella preview qui sotto prima di esportarlo in PDF.", "text-emerald-500");
         }
 
         async function generateFullBookCore() {
@@ -525,7 +566,7 @@
             const status = document.getElementById('writingStatus');
             
             isWriting = true; btn.disabled = true;
-            msTextarea.value = "Inizializzazione stesura manoscritto...\n\n";
+            msTextarea.value = ""; // Pulisce
             loader.classList.add('active'); status.classList.remove('hidden');
 
             try {
@@ -551,7 +592,7 @@
                     await new Promise(r => setTimeout(r, 1500)); 
                 }
                 progress.style.width = `100%`;
-                status.innerText = "Manoscritto completato!";
+                status.innerText = "Manoscritto completato! Rivedilo nella preview.";
             } finally {
                 isWriting = false; btn.disabled = false;
                 setTimeout(() => { loader.classList.remove('active'); }, 2000);
@@ -610,7 +651,7 @@
         }
 
         // =========================================================================
-        // MOTORE EXPORT (PDF e KINDLE HTML)
+        // MOTORE EXPORT (PDF DINAMICO e KINDLE HTML)
         // =========================================================================
         function generateKindle() {
             const title = document.getElementById('bookTitle').value || "Senza Titolo";
@@ -639,26 +680,49 @@
             const title = document.getElementById('bookTitle').value || "Senza Titolo";
             const author = document.getElementById('bookAuthor').value || "Autore Sconosciuto";
             const content = document.getElementById('manuscriptContent').value;
+            const style = document.getElementById('bookStyle').value; // Recupera lo stile scelto
+            
             if(!content.trim() || content.includes("Inizializzazione")) return;
 
             const doc = new jsPDF({ orientation: "portrait", unit: "in", format: [PAGE_WIDTH, PAGE_HEIGHT] });
-            doc.setFont("helvetica", "bold"); doc.setFontSize(24);
+            
+            // Impostazione Font Dinamici
+            let fontTitle = "helvetica";
+            let fontBody = "times";
+            let lineSpacingBody = 0.22;
+            let titleSize = 16;
+            let bodySize = 11;
+
+            if (style === "romanzo") {
+                fontTitle = "times"; fontBody = "times"; lineSpacingBody = 0.25; titleSize = 18; bodySize = 12;
+            } else if (style === "manuale") {
+                fontTitle = "helvetica"; fontBody = "helvetica"; lineSpacingBody = 0.20; titleSize = 16; bodySize = 10;
+            }
+
+            // FRONTESPIZIO
+            doc.setFont(fontTitle, "bold"); doc.setFontSize(24);
             const titleLines = doc.splitTextToSize(title, PAGE_WIDTH - 2);
             doc.text(titleLines, PAGE_WIDTH / 2, 3, { align: "center" });
             
-            doc.setFont("helvetica", "normal"); doc.setFontSize(14);
+            doc.setFont(fontTitle, "normal"); doc.setFontSize(14);
             doc.text(author, PAGE_WIDTH / 2, 4 + (titleLines.length * 0.4), { align: "center" });
+            
+            // PAGINA COPYRIGHT
             doc.addPage();
-            doc.setFontSize(10);
+            doc.setFont(fontBody, "normal"); doc.setFontSize(10);
             doc.text(`Copyright © ${new Date().getFullYear()} ${author}`, 0.75, 8);
             doc.text("Tutti i diritti riservati.", 0.75, 8.2);
 
+            // CONTENUTO MANOSCRITTO
             doc.addPage();
-            const marginLeft = 0.75; const marginTop = 0.75; const maxWidth = PAGE_WIDTH - marginLeft - 0.5;
+            const marginLeft = 0.75; const marginTop = 0.75; const maxWidth = PAGE_WIDTH - marginLeft - 0.75;
             const paragraphs = content.split('\n');
             let cursorY = marginTop; let pageNum = 1;
 
-            const printPageNumber = () => { doc.setFontSize(9); doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); };
+            const printPageNumber = () => { 
+                doc.setFont(fontBody, "normal"); doc.setFontSize(9); 
+                doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); 
+            };
 
             for (let i = 0; i < paragraphs.length; i++) {
                 let para = paragraphs[i].trim();
@@ -667,22 +731,22 @@
 
                 if (isChapterTitle) {
                     if (cursorY > marginTop + 0.5) { printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++; }
-                    doc.setFont("helvetica", "bold"); doc.setFontSize(16); cursorY += 0.5; 
+                    doc.setFont(fontTitle, "bold"); doc.setFontSize(titleSize); cursorY += 0.5; 
                 } else {
-                    doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+                    doc.setFont(fontBody, "normal"); doc.setFontSize(bodySize);
                 }
 
                 const lines = doc.splitTextToSize(para, maxWidth);
                 for (let j = 0; j < lines.length; j++) {
                     if (cursorY > (PAGE_HEIGHT - 0.75)) {
                         printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++;
-                        if(isChapterTitle) doc.setFont("helvetica", "bold").setFontSize(16);
-                        else doc.setFont("helvetica", "normal").setFontSize(11);
+                        if(isChapterTitle) { doc.setFont(fontTitle, "bold").setFontSize(titleSize); }
+                        else { doc.setFont(fontBody, "normal").setFontSize(bodySize); }
                     }
                     doc.text(lines[j], marginLeft, cursorY);
-                    cursorY += isChapterTitle ? 0.3 : 0.2;
+                    cursorY += isChapterTitle ? 0.35 : lineSpacingBody;
                 }
-                cursorY += 0.15;
+                cursorY += 0.15; // Spazio extra tra paragrafi
             }
             printPageNumber();
             doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Interior.pdf`);
