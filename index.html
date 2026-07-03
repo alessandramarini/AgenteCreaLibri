@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KDP Empire Builder - Vercel Edition</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:wght@700&family=Fira+Code:wght@400;600&display=swap');
@@ -42,7 +39,6 @@
             background-size: 1em;
         }
 
-        /* Stili dinamici per l'editor del manoscritto */
         .style-saggistica { font-family: Georgia, serif; line-height: 1.8; font-size: 1.05rem; }
         .style-romanzo { font-family: 'Times New Roman', Times, serif; line-height: 1.6; font-size: 1.1rem; }
         .style-manuale { font-family: 'Inter', sans-serif; line-height: 1.5; font-size: 0.95rem; }
@@ -60,37 +56,42 @@
                     Auto-Generatore Agentico Always-On
                 </p>
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-end sm:items-center">
+            <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-center sm:justify-start">
                 <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
-                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Motore AI</label>
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Motore AI Testo</label>
                     <select id="aiProvider" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm">
-                        <option value="groq" selected class="bg-slate-800">⚡ Groq (Llama 3 70B)</option>
-                        <option value="gemini" class="bg-slate-800">🧠 Gemini (1.5 Flash)</option>
+                        <option value="groq" selected class="bg-slate-800">⚡ Groq (Cascata)</option>
+                        <option value="gemini" class="bg-slate-800">🧠 Gemini</option>
                     </select>
                 </div>
                 <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
-                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Lingua Target</label>
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Lingua</label>
                     <select id="genLang" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm">
                         <option value="Italiano" class="bg-slate-800">🇮🇹 Italiano</option>
                         <option value="Inglese" selected class="bg-slate-800">🇬🇧 Inglese</option>
                         <option value="Spagnolo" class="bg-slate-800">🇪🇸 Spagnolo</option>
-                        <option value="Francese" class="bg-slate-800">🇫🇷 Francese</option>
-                        <option value="Tedesco" class="bg-slate-800">🇩🇪 Tedesco</option>
+                    </select>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
+                    <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">Illustrazioni Higgsfield</label>
+                    <select id="illusMode" class="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm border-b border-emerald-500/30">
+                        <option value="bw" selected class="bg-slate-800">Bianco e Nero (Sfondo Bianco)</option>
+                        <option value="color" class="bg-slate-800">A Colori</option>
+                        <option value="none" class="bg-slate-800">Nessuna Illustrazione</option>
                     </select>
                 </div>
             </div>
         </header>
 
-        <!-- SEZIONE AGENTE AUTONOMO -->
         <div class="agent-terminal rounded-2xl p-6 shadow-2xl relative overflow-hidden mb-8">
             <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500 animate-pulse"></div>
             
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 border-b border-emerald-900/50 pb-4">
                 <div>
                     <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
-                        <i data-lucide="bot" class="w-6 h-6"></i> Agente Autonomo
+                        <i data-lucide="bot" class="w-6 h-6"></i> Agente Autonomo (Sistema Antiproiettile)
                     </h2>
-                    <p class="text-xs text-emerald-600/80 mt-1">Ricerca profittabilità estrema, scrittura e pubblicazione 1 libro/giorno in totale autonomia.</p>
+                    <p class="text-xs text-emerald-600/80 mt-1">Sfrutta le rotazioni e i fallback per lavorare all'infinito senza blocchi API.</p>
                 </div>
                 
                 <div class="flex items-center gap-3 w-full md:w-auto">
@@ -117,7 +118,6 @@
             </div>
         </div>
 
-        <!-- Fase 1: Ideazione -->
         <div class="glass-panel rounded-2xl p-6 shadow-2xl relative overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
             <div class="flex flex-col md:flex-row gap-4 items-end">
@@ -134,7 +134,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Colonna Sinistra -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
                     <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2 border-b border-slate-700 pb-2">
@@ -175,7 +174,6 @@
                 </div>
             </div>
 
-            <!-- Colonna Destra -->
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
@@ -224,38 +222,38 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-1 flex justify-between">
                             <span>Contenuto Libro (Live Preview)</span>
-                            <span class="text-emerald-500 font-normal lowercase tracking-normal">Il font riflette lo stile finale del PDF</span>
+                            <span class="text-emerald-500 font-normal lowercase tracking-normal">Supporta tag [IMG:url] per impaginazione automatica</span>
                         </label>
                         <textarea id="manuscriptContent" rows="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-6 py-6 text-slate-200 focus:outline-none focus:border-amber-500 transition-all resize-y style-saggistica" placeholder="Il contenuto del libro apparirà qui..."></textarea>
                     </div>
                 </div>
 
-                <!-- SEZIONE A+ -->
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="layout-template" class="text-emerald-400 w-5 h-5"></i> Contenuti A+ (Opzionale)
+                            <i data-lucide="layout-template" class="text-emerald-400 w-5 h-5"></i> Contenuti A+ (Moduli Grafici e Copy)
                         </h2>
                         <button id="btnGenerateAPlus" onclick="triggerManualAPlus()" disabled class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-emerald-500/20">
                             <i data-lucide="sparkles" class="w-4 h-4"></i> Forza A+ Manuale
                         </button>
                     </div>
                     <div>
-                        <textarea id="aPlusContent" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-5 py-4 text-emerald-100 text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-y leading-relaxed" placeholder="I testi persuasivi per i tuoi moduli A+ appariranno qui..."></textarea>
+                        <textarea id="aPlusContent" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-5 py-4 text-emerald-100 text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-y leading-relaxed mb-4" placeholder="I testi persuasivi per i tuoi moduli A+ appariranno qui..."></textarea>
+                        
+                        <div id="aPlusImagesContainer" class="hidden">
+                            </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Fase 5: Esportazione KDP -->
         <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl mt-8 border-t-4 border-t-amber-500">
             <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP</h2>
-            <p class="text-center text-slate-400 text-sm mb-6">Il PDF dell'interno verrà formattato seguendo automaticamente lo "Stile Rendering" selezionato sopra.</p>
+            <p class="text-center text-slate-400 text-sm mb-6">Il PDF dell'interno impaginerà automaticamente i testi e le illustrazioni generate.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
                 
-                <!-- PREVIEW IMMAGINE GENERATA DALL'AI -->
                 <div class="md:col-span-4 flex flex-col md:flex-row items-center gap-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
                     <div class="flex-shrink-0 w-32 h-48 bg-slate-900 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden shadow-lg relative">
                         <i data-lucide="image" class="w-8 h-8 text-slate-700 absolute z-0"></i>
@@ -263,12 +261,12 @@
                     </div>
                     <div class="flex-1 w-full">
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 text-amber-500 flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina (Best-Seller Style)
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina (Higgsfield/Pollinations)
                         </label>
-                        <p class="text-xs text-slate-400 mb-2">L'AI ha scritto questo prompt analizzando la copertina più venduta della tua nicchia. L'immagine verrà applicata automaticamente esportando il PDF.</p>
+                        <p class="text-xs text-slate-400 mb-2">L'AI ha scritto questo prompt analizzando la copertina più venduta della tua nicchia.</p>
                         <textarea id="aiCoverPrompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 text-xs focus:border-amber-500 transition-colors resize-none mb-3" placeholder="Il prompt dell'immagine generato dall'AI apparirà qui..."></textarea>
                         <button onclick="refreshCoverImage()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center gap-2 shadow">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rigenera Immagine (Nuovo Seed)
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rigenera Immagine Copertina
                         </button>
                     </div>
                 </div>
@@ -303,8 +301,8 @@
                 <button onclick="generateKindle()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-colors border border-slate-500 flex items-center justify-center gap-2 group">
                     <i data-lucide="tablet" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> eBook HTML
                 </button>
-                <button onclick="generateInterior()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-colors border border-slate-500 flex items-center justify-center gap-2 group">
-                    <i data-lucide="file-text" class="w-5 h-5 group-hover:text-amber-400 transition-colors"></i> Interno PDF
+                <button id="btnInterior" onclick="generateInteriorAsync()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-colors border border-slate-500 flex items-center justify-center gap-2 group">
+                    <i id="interiorIcon" data-lucide="file-text" class="w-5 h-5 group-hover:text-amber-400 transition-colors"></i> <span id="interiorBtnText">Interno PDF HD</span>
                 </button>
                 <button onclick="generateCover()" class="flex-1 btn-gold py-4 px-6 rounded-xl flex items-center justify-center gap-2">
                     <i data-lucide="image" class="w-5 h-5"></i> Cover PDF HD
@@ -314,7 +312,6 @@
 
     </div>
 
-    <!-- Modale Messaggi -->
     <div id="messageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
         <div class="bg-slate-800 border border-slate-600 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform" id="modalContent">
             <h3 id="modalTitle" class="text-xl font-bold mb-2 text-white flex items-center gap-2">Notifica</h3>
@@ -324,9 +321,7 @@
     </div>
 
     <script>
-        // =========================================================================
         // FIX FONDAMENTALE PER JSPDF
-        // =========================================================================
         window.jsPDF = window.jspdf.jsPDF;
 
         lucide.createIcons();
@@ -364,14 +359,49 @@
             if(!agentActive) logAgent(`Stile visivo aggiornato: ${style.toUpperCase()}`);
         }
 
-        // Sistema di Rendering Immagine Copertina tramite AI (Pollinations API gratuita e senza chiave)
-        function refreshCoverImage() {
+        // =========================================================================
+        // FETCH INTELLIGENTE IMMAGINI (Higgsfield con Fallback Pollinations)
+        // =========================================================================
+        async function fetchImageWithFallback(promptText, width, height) {
+            try {
+                // Tenta di generare l'immagine con Higgsfield passando per il backend
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'image', prompt: promptText, width, height })
+                });
+                
+                if (!response.ok) throw new Error("API Image Error");
+                const data = await response.json();
+                
+                if (data.url) return data.url;
+                throw new Error("Nessun URL ritornato dall'API.");
+            } catch(e) {
+                // FALLBACK DI EMERGENZA: Se la chiave manca o Higgsfield è offline, usa la rete gratuita.
+                console.warn("Fallback su Pollinations per immagine attivato.");
+                const seed = Math.floor(Math.random() * 1000000); 
+                return `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
+            }
+        }
+
+        async function refreshCoverImage() {
             const promptText = document.getElementById('aiCoverPrompt').value;
             if(!promptText) return;
             const img = document.getElementById('aiCoverPreview');
             img.classList.remove('hidden');
-            const seed = Math.floor(Math.random() * 1000000); // Evita la cache del browser
-            img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=600&height=900&nologo=true&seed=${seed}`;
+            
+            // Genera l'immagine con la funzione intelligente
+            img.src = await fetchImageWithFallback(promptText, 600, 900);
+        }
+
+        function loadImageForPdf(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = url;
+            });
         }
 
         async function fetchAIWithRetry(prompt, schema = null, retries = 3, customSystemInstruction = null) {
@@ -416,20 +446,19 @@
         function toggleAgent() {
             const btn = document.getElementById('btnToggleAgent');
             const btnText = document.getElementById('agentBtnText');
-            const providerName = document.getElementById('aiProvider').options[document.getElementById('aiProvider').selectedIndex].text;
             
             if (agentActive) {
                 agentActive = false;
                 btn.classList.remove('active');
                 btnText.innerText = "ATTIVA AUTOPILOTA";
-                logAgent("🔴 Protocollo Agentico disattivato. Ritorno in modalità manuale.");
+                logAgent("🔴 Protocollo Agentico disattivato.");
                 if(countdownTimer) clearInterval(countdownTimer);
                 document.getElementById('countdownContainer').classList.add('hidden');
             } else {
                 agentActive = true;
                 btn.classList.add('active');
                 btnText.innerText = "FERMA AUTOPILOTA";
-                logAgent(`🟢 Inizializzazione Protocollo Agentico con ${providerName}...`);
+                logAgent(`🟢 Inizializzazione Protocollo Agentico...`);
                 logAgent("Obiettivo: Generazione 1 Libro ad altissima profittabilità al giorno.");
                 runAgentCycle();
             }
@@ -445,38 +474,38 @@
                 document.getElementById('rawIdea').value = idea;
                 logAgent(`Trovata nicchia ad alta conversione: "${idea}"`);
 
-                logAgent("Generazione architettura KDP, stile conversione e prompt copertina...");
+                logAgent("Generazione architettura KDP e Prompt Copertina...");
                 await generateBlueprintCore(idea);
-                logAgent("Blueprint completato. Indice, Keyword e Prompt Immagine estratti.");
+                logAgent("Blueprint completato.");
 
-                logAgent("Avvio rete neurale per stesura manoscritto (10 capitoli)...");
+                logAgent("Avvio rete neurale per stesura manoscritto (con illustrazioni dinamiche)...");
                 await generateFullBookCore();
                 logAgent("Manoscritto completato con successo.");
 
-                logAgent("Generazione moduli di neuromarketing per A+ Content...");
+                logAgent("Generazione moduli di neuromarketing e layout A+ Content...");
                 await generateAPlusCore();
-                logAgent("Copy persuasivo A+ generato.");
+                logAgent("A+ Generato.");
 
-                logAgent("Compilazione ed esportazione file (PDF impaginato, Cover con Immagine e HTML)...");
+                logAgent("Compilazione ed esportazione file...");
+                await new Promise(res => setTimeout(res, 3000)); // Attende le immagini
                 
-                // Lascia qualche secondo di respiro per permettere al browser di scaricare l'immagine della copertina prima del PDF
-                await new Promise(res => setTimeout(res, 5000));
-                
-                generateKindle(); generateInterior(); generateCover();
+                generateKindle(); 
+                await generateInteriorAsync(); 
+                generateCover();
                 logAgent("File scaricati. Libro pronto per l'upload su Amazon KDP.");
 
                 startCountdownForNextBook();
 
             } catch (error) {
                 logAgent(`❌ ERRORE CRITICO DURANTE IL CICLO: ${error.message}`);
-                logAgent("L'agente riproverà nel prossimo ciclo.");
+                logAgent("L'agente riproverà nel prossimo ciclo attivando le reti di Fallback.");
                 startCountdownForNextBook();
             }
         }
 
         async function agenticMarketResearch() {
             const genLang = document.getElementById('genLang').value;
-            const systemPrompt = `Sei un agente AI analitico e spietato specializzato nel data-mining per Amazon KDP. Il tuo unico scopo è analizzare i trend, i volumi di ricerca globali e le carenze di Amazon per identificare un (1) singolo argomento/nicchia estremamente profittevole per un libro. Rispondi SOLO ed esclusivamente con il titolo o l'argomento in 1 breve frase nella lingua ${genLang}. Nessun saluto, nessuna spiegazione.`;
+            const systemPrompt = `Sei un agente AI analitico e spietato specializzato nel data-mining per Amazon KDP. Il tuo unico scopo è analizzare i trend e i volumi di ricerca per identificare un (1) singolo argomento/nicchia estremamente profittevole. Rispondi SOLO ed esclusivamente con l'argomento in 1 breve frase nella lingua ${genLang}. Nessun saluto, nessuna spiegazione.`;
             const prompt = "Genera un'idea di libro altamente profittevole (Blue Ocean) per il mercato di oggi.";
             const response = await fetchAIWithRetry(prompt, null, 3, systemPrompt);
             return response.trim().replace(/["']/g, ""); 
@@ -531,7 +560,7 @@
             5. Testo per la quarta di copertina (AIDA).
             6. Sommario (TOC) di ESATTAMENTE 10 capitoli.
             7. Scegli lo stile di formattazione interno ("saggistica", "romanzo", "manuale").
-            8. Scrivi un prompt in INGLESE (max 40 parole) per un AI Image Generator. Il prompt deve descrivere una copertina senza testi o scritte, che ricalchi ESATTAMENTE lo stile visivo del best-seller assoluto per questo genere.`;
+            8. Scrivi un prompt in INGLESE (max 40 parole) per un AI Image Generator. Il prompt deve descrivere una copertina ad altissima conversione, in stile best-seller del genere, ma SENZA includere testi o parole scritte.`;
 
             const schema = {
                 type: "OBJECT",
@@ -540,8 +569,7 @@
                     keywords: { type: "ARRAY", items: { type: "STRING" } },
                     categories: { type: "ARRAY", items: { type: "STRING" } },
                     back_cover: { type: "STRING" }, toc: { type: "ARRAY", items: { type: "STRING" } },
-                    book_style: { type: "STRING" },
-                    cover_prompt: { type: "STRING", description: "English prompt for image generation, no text included" }
+                    book_style: { type: "STRING" }, cover_prompt: { type: "STRING" }
                 }, required: ["title", "subtitle", "keywords", "categories", "back_cover", "toc", "book_style", "cover_prompt"]
             };
 
@@ -551,7 +579,6 @@
                 document.getElementById('bookSubtitle').value = result.subtitle;
                 document.getElementById('backCoverText').value = result.back_cover;
                 
-                // Aggiornamento Stile e Immagine
                 const styleSelect = document.getElementById('bookStyle');
                 if(['saggistica', 'romanzo', 'manuale'].includes(result.book_style.toLowerCase())) {
                     styleSelect.value = result.book_style.toLowerCase();
@@ -561,7 +588,7 @@
                 updateEditorStyle();
 
                 document.getElementById('aiCoverPrompt').value = result.cover_prompt;
-                refreshCoverImage();
+                refreshCoverImage(); // Avvia generazione immagine in background
                 
                 generatedKeywords = result.keywords;
                 generatedCategories = result.categories;
@@ -580,7 +607,7 @@
         async function triggerManualWrite() {
             if (generatedTOC.length === 0) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
             await generateFullBookCore();
-            showModal("Libro Completato", "Il manoscritto è pronto. Controllalo nella preview prima di esportarlo in PDF.", "text-emerald-500");
+            showModal("Libro Completato", "Il manoscritto e i tag immagine sono pronti. Controllalo nella preview prima di esportarlo in PDF.", "text-emerald-500");
         }
 
         async function generateFullBookCore() {
@@ -591,6 +618,8 @@
             const loader = document.getElementById('writingLoader');
             const progress = document.getElementById('writingProgress');
             const status = document.getElementById('writingStatus');
+            const illusMode = document.getElementById('illusMode').value;
+            const style = document.getElementById('bookStyle').value;
             
             isWriting = true; btn.disabled = true;
             msTextarea.value = ""; 
@@ -612,7 +641,17 @@
                     const chapterContent = await fetchAIWithRetry(prompt);
                     let cleanText = chapterContent.replace(/\*\*/g, '');
                     
-                    msTextarea.value += cleanText + "\n\n---\n\n";
+                    let imgTag = "";
+                    if (illusMode !== 'none') {
+                        let colorMod = illusMode === 'bw' ? "black and white ink illustration, clean white background, high contrast, elegant" : "full color illustration, vibrant, detailed";
+                        let imgPrompt = `book illustration about ${chapterTitle}, ${style} aesthetic, ${colorMod}, no text`;
+                        
+                        // Genera l'url dell'immagine in modo asincrono per non bloccare lo script
+                        let promptUrl = await fetchImageWithFallback(imgPrompt, 800, 600);
+                        imgTag = `\n[IMG:${promptUrl}]\n\n`;
+                    }
+                    
+                    msTextarea.value += chapterTitle + "\n" + imgTag + cleanText.replace(chapterTitle, '').trim() + "\n\n---\n\n";
                     msTextarea.scrollTop = msTextarea.scrollHeight; 
                     updateWordCount();
                     
@@ -630,7 +669,7 @@
             const title = document.getElementById('bookTitle').value;
             if (!title) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
             await generateAPlusCore();
-            showModal("Contenuti A+", "Testi A+ generati.", "text-emerald-500");
+            showModal("Contenuti A+", "Testi e Immagini A+ generati. Scorri in basso per vederli.", "text-emerald-500");
         }
 
         async function generateAPlusCore() {
@@ -639,6 +678,7 @@
             const genLang = document.getElementById('genLang').value;
             const btn = document.getElementById('btnGenerateAPlus');
             const aPlusTextarea = document.getElementById('aPlusContent');
+            const aPlusImagesContainer = document.getElementById('aPlusImagesContainer');
             
             btn.disabled = true;
             aPlusTextarea.value = "Generazione Moduli A+ in corso...";
@@ -652,6 +692,33 @@
             try {
                 const responseText = await fetchAIWithRetry(prompt);
                 aPlusTextarea.value = responseText.replace(/\*\*/g, ''); 
+                
+                // Fetch parallelo delle 4 immagini A+
+                const [headerUrl, icon1, icon2, icon3] = await Promise.all([
+                    fetchImageWithFallback("Header banner for a best selling book about " + title + ", high quality, no text", 970, 600),
+                    fetchImageWithFallback("icon illustration concept 1 for book " + title + ", clean background, no text", 300, 300),
+                    fetchImageWithFallback("icon illustration concept 2 for book " + title + ", clean background, no text", 300, 300),
+                    fetchImageWithFallback("icon illustration concept 3 for book " + title + ", clean background, no text", 300, 300)
+                ]);
+
+                aPlusImagesContainer.classList.remove('hidden');
+                aPlusImagesContainer.innerHTML = `
+                    <div class="space-y-4 border-t border-slate-700 pt-4 mt-2">
+                        <div>
+                            <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Banner Header A+ (970x600)</p>
+                            <img src="${headerUrl}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Header">
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Moduli Quadrati (300x300)</p>
+                            <div class="grid grid-cols-3 gap-4">
+                                <img src="${icon1}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Icon 1">
+                                <img src="${icon2}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Icon 2">
+                                <img src="${icon3}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Icon 3">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
             } finally {
                 btn.disabled = false;
             }
@@ -686,12 +753,19 @@
             const content = document.getElementById('manuscriptContent').value;
             if(!content.trim() || content.includes("Inizializzazione")) return;
 
-            let htmlContent = `<!DOCTYPE html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<title>${title}</title>\n<style>\nbody { font-family: serif; line-height: 1.6; margin: 5%; }\nh1 { text-align: center; margin-top: 2em; margin-bottom: 1em; page-break-before: always; }\nh2 { text-align: center; font-weight: normal; margin-bottom: 3em; }\np { text-indent: 1.5em; margin-bottom: 0.5em; text-align: justify; }\n.center { text-align: center; text-indent: 0; }\n</style>\n</head>\n<body>\n<h1 style="page-break-before: avoid;">${title}</h1>\n<h2>di ${author}</h2>\n<div class="center" style="margin-top: 4em; font-size: 0.8em;">\n<p>Copyright © ${new Date().getFullYear()} ${author}. Tutti i diritti riservati.</p>\n</div>\n`;
+            let htmlContent = `<!DOCTYPE html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<title>${title}</title>\n<style>\nbody { font-family: serif; line-height: 1.6; margin: 5%; }\nh1 { text-align: center; margin-top: 2em; margin-bottom: 1em; page-break-before: always; }\nh2 { text-align: center; font-weight: normal; margin-bottom: 3em; }\np { text-indent: 1.5em; margin-bottom: 0.5em; text-align: justify; }\n.center { text-align: center; text-indent: 0; }\nimg { max-width: 100%; height: auto; display: block; margin: 1em auto; }\n</style>\n</head>\n<body>\n<h1 style="page-break-before: avoid;">${title}</h1>\n<h2>di ${author}</h2>\n<div class="center" style="margin-top: 4em; font-size: 0.8em;">\n<p>Copyright © ${new Date().getFullYear()} ${author}. Tutti i diritti riservati.</p>\n</div>\n`;
 
             const paragraphs = content.split('\n');
             for (let i = 0; i < paragraphs.length; i++) {
                 let para = paragraphs[i].trim();
                 if (para === "" || para === "---") continue;
+                
+                if (para.startsWith("[IMG:") && para.endsWith("]")) {
+                    let url = para.substring(5, para.length - 1);
+                    htmlContent += `<img src="${url}" alt="Illustrazione">\n`;
+                    continue;
+                }
+
                 let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.match(/^[0-9]+\./);
                 if (isChapterTitle) { htmlContent += `\n<h1>${para}</h1>\n`; } else { htmlContent += `<p>${para}</p>\n`; }
             }
@@ -703,7 +777,10 @@
         const PAGE_WIDTH = 6;
         const PAGE_HEIGHT = 9;
         
-        function generateInterior() {
+        async function generateInteriorAsync() {
+            const btn = document.getElementById('btnInterior');
+            const btnText = document.getElementById('interiorBtnText');
+            const icon = document.getElementById('interiorIcon');
             const title = document.getElementById('bookTitle').value || "Senza Titolo";
             const author = document.getElementById('bookAuthor').value || "Autore Sconosciuto";
             const content = document.getElementById('manuscriptContent').value;
@@ -711,57 +788,91 @@
             
             if(!content.trim() || content.includes("Inizializzazione")) return;
 
-            const doc = new jsPDF({ orientation: "portrait", unit: "in", format: [PAGE_WIDTH, PAGE_HEIGHT] });
-            
-            let fontTitle = "helvetica"; let fontBody = "times"; let lineSpacingBody = 0.22; let titleSize = 16; let bodySize = 11;
-            if (style === "romanzo") { fontTitle = "times"; fontBody = "times"; lineSpacingBody = 0.25; titleSize = 18; bodySize = 12; } 
-            else if (style === "manuale") { fontTitle = "helvetica"; fontBody = "helvetica"; lineSpacingBody = 0.20; titleSize = 16; bodySize = 10; }
+            btn.disabled = true;
+            btnText.innerText = "Download PDF in corso...";
+            icon.setAttribute('data-lucide', 'loader');
+            icon.classList.add('animate-spin');
+            lucide.createIcons();
 
-            doc.setFont(fontTitle, "bold"); doc.setFontSize(24);
-            const titleLines = doc.splitTextToSize(title, PAGE_WIDTH - 2);
-            doc.text(titleLines, PAGE_WIDTH / 2, 3, { align: "center" });
-            
-            doc.setFont(fontTitle, "normal"); doc.setFontSize(14);
-            doc.text(author, PAGE_WIDTH / 2, 4 + (titleLines.length * 0.4), { align: "center" });
-            
-            doc.addPage();
-            doc.setFont(fontBody, "normal"); doc.setFontSize(10);
-            doc.text(`Copyright © ${new Date().getFullYear()} ${author}`, 0.75, 8);
-            doc.text("Tutti i diritti riservati.", 0.75, 8.2);
+            try {
+                const doc = new jsPDF({ orientation: "portrait", unit: "in", format: [PAGE_WIDTH, PAGE_HEIGHT] });
+                
+                let fontTitle = "helvetica"; let fontBody = "times"; let lineSpacingBody = 0.22; let titleSize = 16; let bodySize = 11;
+                if (style === "romanzo") { fontTitle = "times"; fontBody = "times"; lineSpacingBody = 0.25; titleSize = 18; bodySize = 12; } 
+                else if (style === "manuale") { fontTitle = "helvetica"; fontBody = "helvetica"; lineSpacingBody = 0.20; titleSize = 16; bodySize = 10; }
 
-            doc.addPage();
-            const marginLeft = 0.75; const marginTop = 0.75; const maxWidth = PAGE_WIDTH - marginLeft - 0.75;
-            const paragraphs = content.split('\n');
-            let cursorY = marginTop; let pageNum = 1;
+                doc.setFont(fontTitle, "bold"); doc.setFontSize(24);
+                const titleLines = doc.splitTextToSize(title, PAGE_WIDTH - 2);
+                doc.text(titleLines, PAGE_WIDTH / 2, 3, { align: "center" });
+                
+                doc.setFont(fontTitle, "normal"); doc.setFontSize(14);
+                doc.text(author, PAGE_WIDTH / 2, 4 + (titleLines.length * 0.4), { align: "center" });
+                
+                doc.addPage();
+                doc.setFont(fontBody, "normal"); doc.setFontSize(10);
+                doc.text(`Copyright © ${new Date().getFullYear()} ${author}`, 0.75, 8);
+                doc.text("Tutti i diritti riservati.", 0.75, 8.2);
 
-            const printPageNumber = () => { doc.setFont(fontBody, "normal"); doc.setFontSize(9); doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); };
+                doc.addPage();
+                const marginLeft = 0.75; const marginTop = 0.75; const maxWidth = PAGE_WIDTH - marginLeft - 0.75;
+                const paragraphs = content.split('\n');
+                let cursorY = marginTop; let pageNum = 1;
 
-            for (let i = 0; i < paragraphs.length; i++) {
-                let para = paragraphs[i].trim();
-                if (para === "" || para === "---") continue;
-                let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.match(/^[0-9]+\./);
+                const printPageNumber = () => { doc.setFont(fontBody, "normal"); doc.setFontSize(9); doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); };
 
-                if (isChapterTitle) {
-                    if (cursorY > marginTop + 0.5) { printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++; }
-                    doc.setFont(fontTitle, "bold"); doc.setFontSize(titleSize); cursorY += 0.5; 
-                } else {
-                    doc.setFont(fontBody, "normal"); doc.setFontSize(bodySize);
-                }
+                for (let i = 0; i < paragraphs.length; i++) {
+                    let para = paragraphs[i].trim();
+                    if (para === "" || para === "---") continue;
 
-                const lines = doc.splitTextToSize(para, maxWidth);
-                for (let j = 0; j < lines.length; j++) {
-                    if (cursorY > (PAGE_HEIGHT - 0.75)) {
-                        printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++;
-                        if(isChapterTitle) { doc.setFont(fontTitle, "bold").setFontSize(titleSize); }
-                        else { doc.setFont(fontBody, "normal").setFontSize(bodySize); }
+                    if (para.startsWith("[IMG:") && para.endsWith("]")) {
+                        let url = para.substring(5, para.length - 1);
+                        let img = await loadImageForPdf(url);
+                        if (img) {
+                            let maxW = maxWidth;
+                            let maxH = (PAGE_HEIGHT / 2.5); 
+                            let ratio = Math.min(maxW / img.width, maxH / img.height);
+                            let w = img.width * ratio;
+                            let h = img.height * ratio;
+
+                            if (cursorY + h > PAGE_HEIGHT - 1) {
+                                printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++;
+                            }
+                            doc.addImage(img, "JPEG", (PAGE_WIDTH - w)/2, cursorY, w, h);
+                            cursorY += h + 0.3;
+                        }
+                        continue;
                     }
-                    doc.text(lines[j], marginLeft, cursorY);
-                    cursorY += isChapterTitle ? 0.35 : lineSpacingBody;
+
+                    let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.match(/^[0-9]+\./);
+
+                    if (isChapterTitle) {
+                        if (cursorY > marginTop + 0.5) { printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++; }
+                        doc.setFont(fontTitle, "bold"); doc.setFontSize(titleSize); cursorY += 0.5; 
+                    } else {
+                        doc.setFont(fontBody, "normal"); doc.setFontSize(bodySize);
+                    }
+
+                    const lines = doc.splitTextToSize(para, maxWidth);
+                    for (let j = 0; j < lines.length; j++) {
+                        if (cursorY > (PAGE_HEIGHT - 0.75)) {
+                            printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++;
+                            if(isChapterTitle) { doc.setFont(fontTitle, "bold").setFontSize(titleSize); }
+                            else { doc.setFont(fontBody, "normal").setFontSize(bodySize); }
+                        }
+                        doc.text(lines[j], marginLeft, cursorY);
+                        cursorY += isChapterTitle ? 0.35 : lineSpacingBody;
+                    }
+                    cursorY += 0.15; 
                 }
-                cursorY += 0.15; 
+                printPageNumber();
+                doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Interior.pdf`);
+            } finally {
+                btn.disabled = false;
+                btnText.innerText = "Interno PDF HD";
+                icon.setAttribute('data-lucide', 'file-text');
+                icon.classList.remove('animate-spin');
+                lucide.createIcons();
             }
-            printPageNumber();
-            doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Interior.pdf`);
         }
 
         function generateCover() {
@@ -780,68 +891,64 @@
 
             const doc = new jsPDF({ orientation: "landscape", unit: "in", format: [totalWidth, totalHeight] });
             
-            // 1. Sfondo base (Retro e Spalla)
             doc.setFillColor(bgColor); doc.rect(0, 0, totalWidth, totalHeight, "F"); 
             
-            // Calcolo ESATTO coordinate (Da sx a dx: Retrocopertina -> Spalla -> Frontale)
             const backCoverWidth = PAGE_WIDTH + bleed;
             const spineLeftX = backCoverWidth;
             const spineCenterX = spineLeftX + (spineWidth / 2);
             const frontCoverLeftX = spineLeftX + spineWidth;
             const frontCenterX = frontCoverLeftX + (PAGE_WIDTH / 2);
 
-            // 2. Immagine AI Frontale
             const imgElement = document.getElementById('aiCoverPreview');
-            if (imgElement && imgElement.complete && imgElement.src && !imgElement.src.includes('placeholder') && !imgElement.classList.contains('hidden')) {
+            if (imgElement && imgElement.complete && imgElement.src && !imgElement.classList.contains('hidden')) {
                 try {
                     doc.addImage(imgElement, "JPEG", frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight);
                 } catch(e) { console.error("Errore esportazione immagine:", e); }
-            } else {
-                // Sfondo frontale vuoto se l'immagine non è pronta
-                doc.rect(frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight, "F");
             }
 
-            // 3. Spalla (Spine) esattamente al centro (Rotazione per essere letta dall'alto al basso)
             doc.setTextColor(txtColor);
             if (pages >= 79) {
                 doc.setFont("helvetica", "bold");
-                let spineFontSize = (spineWidth * 72) * 0.7; // Adatta la grandezza allo spessore
+                let spineFontSize = (spineWidth * 72) * 0.7; 
                 if (spineFontSize > 14) spineFontSize = 14;
                 doc.setFontSize(spineFontSize);
                 const spineCenterY = totalHeight / 2;
                 doc.text(`${author}        ${title}`, spineCenterX, spineCenterY, { angle: 270, align: "center", baseline: "middle" });
             }
 
-            // 4. Copertina Frontale (Box Testi Semitrasparenti / Solidi per Leggibilità sull'immagine)
             doc.setFont("helvetica", "bold");
-            doc.setFontSize(36);
-            let splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 1);
-            if(splitTitle.length > 3) { doc.setFontSize(28); splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 1); }
+            let maxTitleSize = 65;
+            doc.setFontSize(maxTitleSize);
+            let splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 0.5);
             
-            // Sfondo scuro per il titolo
+            while((splitTitle.length * (maxTitleSize/72)) > (PAGE_HEIGHT / 2.5) || doc.getTextWidth(splitTitle[0]) > PAGE_WIDTH - 0.2) {
+                maxTitleSize -= 5;
+                doc.setFontSize(maxTitleSize);
+                splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 0.5);
+                if(maxTitleSize < 25) break;
+            }
+            
             doc.setFillColor(bgColor);
-            const titleBoxHeight = (splitTitle.length * 0.4) + 1;
+            const titleBoxHeight = (splitTitle.length * (maxTitleSize/72) * 1.2) + 0.5;
             doc.rect(frontCoverLeftX, 0.7, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 0.8 : 0), "F");
             
             doc.setTextColor(txtColor);
-            doc.text(splitTitle, frontCenterX, 1.4, { align: "center" });
+            doc.text(splitTitle, frontCenterX, 1 + (maxTitleSize/72), { align: "center" });
             
             if(subtitle) {
                 doc.setFont("helvetica", "normal"); doc.setFontSize(14);
                 const splitSub = doc.splitTextToSize(subtitle, PAGE_WIDTH - 1.5);
-                doc.text(splitSub, frontCenterX, 1.6 + (splitTitle.length * 0.4), { align: "center" });
+                doc.text(splitSub, frontCenterX, 1.2 + (titleBoxHeight) - 0.5, { align: "center" });
             }
             
-            // Sfondo scuro per l'autore
             doc.setFillColor(bgColor);
             doc.rect(frontCoverLeftX, totalHeight - 2.2, PAGE_WIDTH + bleed, 2.2, "F");
             
-            doc.setFont("helvetica", "bold"); doc.setFontSize(20);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
             doc.text(author, frontCenterX, totalHeight - 1.2, { align: "center" });
             doc.setDrawColor(txtColor); doc.setLineWidth(0.05);
             doc.line(frontCenterX - 1.5, totalHeight - 1.5, frontCenterX + 1.5, totalHeight - 1.5);
 
-            // 5. Retrocopertina (Back Cover)
             const backCenterX = (PAGE_WIDTH / 2) + (bleed / 2);
             doc.setFontSize(16);
             const splitTitleBack = doc.splitTextToSize(title, PAGE_WIDTH - 1.5);
@@ -852,7 +959,6 @@
             const splitBack = doc.splitTextToSize(backText, safeBackWidth);
             doc.text(splitBack, backCenterX, 2.5 + (splitTitleBack.length * 0.2), { align: "center", maxWidth: safeBackWidth });
 
-            // Barcode
             doc.setFillColor("#ffffff");
             const barcodeWidth = 2; const barcodeHeight = 1.2;
             doc.rect(spineLeftX - barcodeWidth - 0.25, totalHeight - barcodeHeight - 0.25 - bleed, barcodeWidth, barcodeHeight, "F");
