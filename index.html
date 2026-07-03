@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDP Empire Builder - Vercel Edition Pro</title>
+    <title>KDP Empire Builder - Copilot Studio Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -15,16 +15,12 @@
         .btn-gold:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.4); }
         .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
         
-        .btn-agent { background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: #fff; font-weight: 800; transition: all 0.3s; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-        .btn-agent:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
-        .btn-agent.active { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
-
         .loader-bar { width: 100%; height: 4px; background-color: #1e293b; border-radius: 2px; overflow: hidden; display: none; }
         .loader-bar.active { display: block; }
         .loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #fbbf24, #d97706); transition: width 0.3s ease; }
         
-        .agent-terminal { font-family: 'Fira Code', monospace; background-color: #020617; border: 1px solid #10b981; box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.1); }
-        .terminal-text { color: #34d399; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
+        .agent-terminal { font-family: 'Fira Code', monospace; background-color: #020617; border: 1px solid #3b82f6; box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.1); }
+        .terminal-text { color: #60a5fa; text-shadow: 0 0 5px rgba(96, 165, 250, 0.5); }
         
         textarea::-webkit-scrollbar { width: 8px; }
         textarea::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
@@ -42,6 +38,10 @@
         .style-saggistica { font-family: Georgia, serif; line-height: 1.8; font-size: 1.05rem; }
         .style-romanzo { font-family: 'Times New Roman', Times, serif; line-height: 1.6; font-size: 1.1rem; }
         .style-manuale { font-family: 'Inter', sans-serif; line-height: 1.5; font-size: 0.95rem; }
+        
+        /* Animazioni bottoni copilot */
+        .btn-copilot { transition: all 0.2s ease; }
+        .btn-copilot:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="min-h-screen p-4 md:p-8 pb-24">
@@ -50,10 +50,10 @@
         
         <header class="text-center md:text-left flex flex-col md:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-4">
             <div>
-                <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600 tracking-tight" style="font-family: 'Playfair Display', serif;">KDP EMPIRE AI</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 tracking-tight" style="font-family: 'Playfair Display', serif;">KDP COPILOT STUDIO</h1>
                 <p class="text-slate-400 mt-2 font-medium flex items-center gap-2 justify-center md:justify-start">
-                    <span class="bg-emerald-900/50 text-emerald-400 px-2 py-0.5 rounded text-xs border border-emerald-700/50">Vercel Secure Core</span>
-                    Auto-Generatore Agentico Always-On (100+ Pagine)
+                    <span class="bg-blue-900/50 text-blue-400 px-2 py-0.5 rounded text-xs border border-blue-700/50">Human-in-the-Loop</span>
+                    Generazione Assistita ad Alta Qualità e Contestualizzata
                 </p>
             </div>
             <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-center sm:justify-start">
@@ -74,8 +74,8 @@
                     </select>
                 </div>
                 <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
-                    <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">Illustrazioni</label>
-                    <select id="illusMode" class="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm border-b border-emerald-500/30">
+                    <label class="text-[10px] text-blue-400 font-bold uppercase tracking-wider mb-1">Illustrazioni Capitoli</label>
+                    <select id="illusMode" class="bg-transparent text-blue-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm border-b border-blue-500/30">
                         <option value="bw" selected class="bg-slate-800">Bianco e Nero</option>
                         <option value="color" class="bg-slate-800">A Colori</option>
                         <option value="none" class="bg-slate-800">Nessuna Illustrazione</option>
@@ -85,37 +85,26 @@
         </header>
 
         <div class="agent-terminal rounded-2xl p-6 shadow-2xl relative overflow-hidden mb-8">
-            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500 animate-pulse"></div>
+            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
             
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 border-b border-emerald-900/50 pb-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 border-b border-blue-900/50 pb-4">
                 <div>
-                    <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
-                        <i data-lucide="bot" class="w-6 h-6"></i> Agente Autonomo (Sistema Antiproiettile)
+                    <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                        <i data-lucide="cpu" class="w-6 h-6"></i> Console di Regia Editoriale
                     </h2>
-                    <p class="text-xs text-emerald-600/80 mt-1">Sfrutta l'orchestrazione lato client per aggirare il timeout di Vercel.</p>
+                    <p class="text-xs text-blue-600/80 mt-1">Genera l'idea e il Blueprint. Poi gestisci i capitoli uno ad uno.</p>
                 </div>
                 
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <div class="flex items-center gap-2">
-                        <label class="text-xs text-slate-400">Modalità Test (1 min loop):</label>
-                        <input type="checkbox" id="demoMode" class="w-4 h-4 accent-emerald-500" checked>
-                    </div>
-                    <button id="btnToggleAgent" onclick="toggleAgent()" class="btn-agent py-3 px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg">
-                        <i data-lucide="power" class="w-5 h-5"></i>
-                        <span id="agentBtnText">ATTIVA AUTOPILOTA</span>
-                    </button>
-                </div>
+                <button id="btnToggleAgent" onclick="runPrepCycle()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg transition-colors">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                    <span id="agentBtnText">AVVIA PREPARAZIONE LIBRO</span>
+                </button>
             </div>
 
-            <div class="bg-black/50 rounded-lg p-4 h-40 overflow-y-auto border border-emerald-900/30" id="agentConsole">
+            <div class="bg-black/50 rounded-lg p-4 h-32 overflow-y-auto border border-blue-900/30" id="agentConsole">
                 <div class="terminal-text text-xs space-y-1" id="agentLogOutput">
-                    <p class="opacity-50">> In attesa di attivazione protocollo AI...</p>
+                    <p class="opacity-50">> Sistema pronto. Inserisci un'idea o premi 'Avvia Preparazione Libro' per l'automazione del Blueprint e dei Contenuti A+.</p>
                 </div>
-            </div>
-            
-            <div id="countdownContainer" class="mt-3 hidden flex items-center gap-2 text-emerald-400 text-sm font-bold">
-                <i data-lucide="timer" class="w-4 h-4 animate-spin-slow"></i>
-                <span>Prossimo ciclo tra: <span id="agentCountdown">00:00:00</span></span>
             </div>
         </div>
 
@@ -123,15 +112,14 @@
             <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
             <div class="flex flex-col md:flex-row gap-4 items-end">
                 <div class="flex-1 w-full">
-                    <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2"><i data-lucide="lightbulb" class="inline w-4 h-4 mr-1 pb-1"></i> 1. Input Manuale</label>
-                    <input type="text" id="rawIdea" placeholder="Lascia vuoto per far scegliere all'AI, oppure inserisci un macro-argomento..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-5 py-4 text-white text-lg focus:outline-none focus:border-amber-500 transition-colors shadow-inner placeholder-slate-600">
+                    <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2"><i data-lucide="lightbulb" class="inline w-4 h-4 mr-1 pb-1"></i> 1. Input Idea o Nicchia</label>
+                    <input type="text" id="rawIdea" placeholder="Lascia vuoto per far ricercare all'AI una nicchia profittevole, oppure inserisci un macro-argomento..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-5 py-4 text-white text-lg focus:outline-none focus:border-amber-500 transition-colors shadow-inner placeholder-slate-600">
                 </div>
                 <button id="btnGenerateBlueprint" onclick="triggerManualBlueprint()" class="btn-gold py-4 px-8 rounded-xl flex items-center justify-center gap-2 w-full md:w-auto shrink-0">
-                    <i data-lucide="cpu" class="w-5 h-5"></i> Genera Blueprint
+                    <i data-lucide="layers" class="w-5 h-5"></i> Crea Solo Blueprint
                 </button>
             </div>
             <div id="blueprintLoader" class="loader-bar mt-4"><div class="loader-progress w-full animate-[pulse_1s_ease-in-out_infinite]"></div></div>
-            <p id="blueprintStatus" class="text-xs text-slate-400 mt-2 hidden text-center md:text-left">Analisi mercato in corso...</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -176,24 +164,19 @@
             </div>
 
             <div class="lg:col-span-2 space-y-6">
-                <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden border-2 border-blue-500/30">
                     <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="list-ordered" class="text-blue-400 w-5 h-5"></i> Sommario & Scrittura (Target: 100+ Pag)
+                            <i data-lucide="list-ordered" class="text-blue-400 w-5 h-5"></i> KDP Copilot: Generazione Capitoli
                         </h2>
-                        <button id="btnWriteBook" onclick="triggerManualWrite()" disabled class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/20">
-                            <i data-lucide="pen-tool" class="w-4 h-4"></i> Forza Scrittura Manuale
-                        </button>
+                        <span class="text-xs text-blue-400 font-medium bg-blue-900/30 px-3 py-1 rounded-full border border-blue-700/50">Modalità Controllo Qualità</span>
                     </div>
                     
-                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-4 h-48 overflow-y-auto" id="tocContainer">
-                        <p class="text-slate-500 italic text-sm text-center mt-16">Il sommario apparirà qui.</p>
-                        <ul id="tocList" class="list-decimal list-inside space-y-1 text-sm text-slate-300 hidden"></ul>
+                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-2 max-h-72 overflow-y-auto" id="tocContainer">
+                        <p class="text-slate-500 italic text-sm text-center mt-12 mb-12">I capitoli generati dal Blueprint appariranno qui. Potrai dirigerne la stesura uno ad uno.</p>
+                        <div id="tocList" class="space-y-2 hidden"></div>
                     </div>
-
-                    <div id="writingLoader" class="loader-bar mb-2"><div id="writingProgress" class="loader-progress w-0 bg-blue-500"></div></div>
-                    <p id="writingStatus" class="text-xs text-blue-400 font-mono hidden">In attesa...</p>
                 </div>
 
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
@@ -223,9 +206,9 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-1 flex justify-between">
                             <span>Contenuto Libro (Live Preview)</span>
-                            <span class="text-emerald-500 font-normal lowercase tracking-normal">Supporta tag [IMG:url] per impaginazione</span>
+                            <span class="text-blue-500 font-normal lowercase tracking-normal">Il Copilot aggiungerà qui il testo man mano che lo approvi.</span>
                         </label>
-                        <textarea id="manuscriptContent" rows="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-6 py-6 text-slate-200 focus:outline-none focus:border-amber-500 transition-all resize-y style-saggistica" placeholder="Il contenuto del libro apparirà qui in capitoli estesi..."></textarea>
+                        <textarea id="manuscriptContent" rows="18" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-6 py-6 text-slate-200 focus:outline-none focus:border-amber-500 transition-all resize-y style-saggistica" placeholder="Il contenuto del libro apparirà qui... Potrai correggere, aggiungere note o tag [IMG:url] prima dell'esportazione finale."></textarea>
                     </div>
                 </div>
 
@@ -248,8 +231,8 @@
         </div>
 
         <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl mt-8 border-t-4 border-t-amber-500">
-            <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP</h2>
-            <p class="text-center text-slate-400 text-sm mb-6">Il PDF dell'interno calcolerà le pagine e impaginerà testo e illustrazioni automaticamente.</p>
+            <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP HD</h2>
+            <p class="text-center text-slate-400 text-sm mb-6">Genera la copertina e scarica il PDF finale impaginato.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
                 
@@ -260,12 +243,12 @@
                     </div>
                     <div class="flex-1 w-full">
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 text-amber-500 flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina (AI Render)
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina Base
                         </label>
-                        <p class="text-xs text-slate-400 mb-2">L'AI ha scritto questo prompt analizzando la copertina più venduta della tua nicchia.</p>
+                        <p class="text-xs text-slate-400 mb-2">Questo è il prompt per l'immagine di background della copertina.</p>
                         <textarea id="aiCoverPrompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 text-xs focus:border-amber-500 transition-colors resize-none mb-3" placeholder="Il prompt dell'immagine generato dall'AI apparirà qui..."></textarea>
-                        <button onclick="refreshCoverImage()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center gap-2 shadow">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rigenera Immagine Copertina
+                        <button onclick="refreshCoverImageBtn()" id="btnGenCoverImg" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center gap-2 shadow">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Genera/Rigenera Immagine
                         </button>
                     </div>
                 </div>
@@ -304,7 +287,7 @@
                     <i id="interiorIcon" data-lucide="file-text" class="w-5 h-5 group-hover:text-amber-400 transition-colors"></i> <span id="interiorBtnText">Interno PDF HD</span>
                 </button>
                 <button onclick="generateCover()" class="flex-1 btn-gold py-4 px-6 rounded-xl flex items-center justify-center gap-2">
-                    <i data-lucide="image" class="w-5 h-5"></i> Cover PDF HD
+                    <i data-lucide="image" class="w-5 h-5"></i> Scarica Copertina PDF
                 </button>
             </div>
         </div>
@@ -326,12 +309,8 @@
         let generatedTOC = [];
         let generatedKeywords = [];
         let generatedCategories = [];
-        let isWriting = false;
-        let agentActive = false;
-        let countdownTimer = null;
 
-        function showModal(title, text, iconColor = "text-amber-500") {
-            if(agentActive) return;
+        function showModal(title, text, iconColor = "text-blue-500") {
             document.getElementById('modalTitle').innerHTML = `<i data-lucide="info" class="${iconColor} w-6 h-6"></i> ${title}`;
             document.getElementById('modalText').innerText = text;
             const modal = document.getElementById('messageModal');
@@ -353,7 +332,6 @@
             const editor = document.getElementById('manuscriptContent');
             editor.classList.remove('style-saggistica', 'style-romanzo', 'style-manuale');
             editor.classList.add(`style-${style}`);
-            if(!agentActive) logAgent(`Stile visivo aggiornato: ${style.toUpperCase()}`);
         }
 
         // --- MOTORE IMMAGINI ---
@@ -372,6 +350,20 @@
                 console.warn("Fallback su Pollinations attivato.");
                 const seed = Math.floor(Math.random() * 1000000); 
                 return `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
+            }
+        }
+
+        async function refreshCoverImageBtn() {
+            const btn = document.getElementById('btnGenCoverImg');
+            btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Generazione...`;
+            btn.disabled = true;
+            lucide.createIcons();
+            try {
+                await refreshCoverImage();
+            } finally {
+                btn.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4"></i> Genera/Rigenera Immagine`;
+                btn.disabled = false;
+                lucide.createIcons();
             }
         }
 
@@ -399,13 +391,13 @@
             });
         }
 
-        // --- MOTORE TESTO E CHIAMATE API ---
+        // --- MOTORE TESTO SICURO E CONTESTUALIZZATO ---
         async function fetchAIWithRetry(prompt, schema = null, retries = 3, customSystemInstruction = null) {
             const provider = document.getElementById('aiProvider').value;
             const genLang = document.getElementById('genLang').value;
             
-            // RUOLO SICURO: Usiamo un ruolo da Ghostwriter per evitare i filtri "Non posso scrivere un libro per te"
-            const defaultSys = `Sei un ghostwriter professionista e assistente editoriale. Il tuo compito è redigere bozze di alta qualità, approfondite e formattate per capitoli specifici in lingua ${genLang}.`;
+            // Imposto il ruolo del Ghostwriter in modo chiaro per evitare rifiuti legati al "Non posso scrivere libri interi"
+            const defaultSys = `Sei un ghostwriter professionista e assistente editoriale. Redigi contenuti approfonditi, strutturati e formattati su richiesta in lingua ${genLang}. Segui ciecamente le istruzioni senza mai scrivere frasi di scuse o note di fine output.`;
             const systemText = customSystemInstruction || defaultSys;
 
             let delay = 1000;
@@ -421,10 +413,9 @@
                     const data = await response.json();
                     if(!data || !data.text) throw new Error("Nessun testo ritornato.");
                     
-                    // FILTRO ANTI-RIFIUTO
                     const textLower = data.text.toLowerCase();
                     if(textLower.includes("non posso") || textLower.includes("i cannot") || textLower.includes("i'm sorry")) {
-                        throw new Error("L'AI ha rifiutato la generazione. Riprovo con prompt ammorbidito.");
+                        throw new Error("Rifiuto AI rilevato. Riprovo...");
                     }
 
                     return schema ? data : data.text;
@@ -444,127 +435,78 @@
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
-        // --- GESTIONE AUTOPILOTA ---
-        function toggleAgent() {
+        // --- PREPARAZIONE LIBRO (Ex Autopilota) ---
+        async function runPrepCycle() {
             const btn = document.getElementById('btnToggleAgent');
-            const btnText = document.getElementById('agentBtnText');
-            
-            if (agentActive) {
-                agentActive = false;
-                btn.classList.remove('active');
-                btnText.innerText = "ATTIVA AUTOPILOTA";
-                logAgent("🔴 Protocollo Agentico disattivato.");
-                if(countdownTimer) clearInterval(countdownTimer);
-                document.getElementById('countdownContainer').classList.add('hidden');
-            } else {
-                agentActive = true;
-                btn.classList.add('active');
-                btnText.innerText = "FERMA AUTOPILOTA";
-                logAgent(`🟢 Inizializzazione Protocollo Agentico...`);
-                runAgentCycle();
-            }
-        }
-
-        async function runAgentCycle() {
-            if (!agentActive) return;
-            document.getElementById('countdownContainer').classList.add('hidden');
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
 
             try {
-                logAgent("Avvio Data Mining profittevole...");
-                const idea = await agenticMarketResearch();
-                document.getElementById('rawIdea').value = idea;
-                logAgent(`Trovata nicchia ad alta conversione: "${idea}"`);
+                logAgent("🟢 Avvio Preparazione Studio KDP...");
+                let idea = document.getElementById('rawIdea').value.trim();
+                
+                if(!idea) {
+                    logAgent("Ricerca Nicchia profittevole...");
+                    idea = await agenticMarketResearch();
+                    document.getElementById('rawIdea').value = idea;
+                    logAgent(`Trovata: "${idea}"`);
+                }
 
-                logAgent("Generazione Blueprint KDP e metadati SEO...");
+                logAgent("Generazione Blueprint KDP e Struttura TOC...");
                 await generateBlueprintCore(idea);
-                logAgent("Blueprint completato con successo (JSON Convalidato).");
+                logAgent("Blueprint completato (Struttura disponibile nel Copilot).");
 
-                logAgent("Avvio orchestrazione lato client per stesura manoscritto...");
-                await generateFullBookCore();
-                logAgent("Manoscritto completato.");
-
-                logAgent("Generazione layout A+ Content persuasivi...");
+                logAgent("Generazione layout A+ Content persuasivi in background...");
                 await generateAPlusCore();
-                logAgent("A+ Generato.");
+                logAgent("A+ Content Generato.");
 
-                logAgent("Compilazione ed esportazione file HD...");
-                generateKindle(); 
-                await generateInteriorAsync(); 
-                generateCover();
-                logAgent("File scaricati. Libro pronto per l'upload su Amazon KDP.");
-
-                startCountdownForNextBook();
+                logAgent("🟢 Fase di Preparazione Conclusa. Ora usa il pannello KDP Copilot per scrivere i capitoli uno ad uno e avere il controllo totale sulla qualità.");
+                showModal("Studio Pronto", "Il Blueprint e gli A+ sono stati generati. Ora usa il pannello KDP Copilot per generare il testo capitolo per capitolo, con la massima qualità e senza interruzioni.", "text-blue-500");
 
             } catch (error) {
-                logAgent(`❌ ERRORE CRITICO DURANTE IL CICLO: ${error.message}`);
-                logAgent("L'agente riproverà nel prossimo ciclo.");
-                startCountdownForNextBook();
+                logAgent(`❌ ERRORE PREPARAZIONE: ${error.message}`);
+                showModal("Errore", "Si è verificato un errore durante la preparazione. Riprova.", "text-red-500");
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
             }
         }
 
         async function agenticMarketResearch() {
             const genLang = document.getElementById('genLang').value;
-            const systemPrompt = `Sei un esperto di analisi di mercato. Identifica una nicchia di saggistica altamente profittevole. Rispondi SOLO con l'argomento in 1 frase nella lingua ${genLang}.`;
+            const systemPrompt = `Sei un esperto di analisi di mercato. Identifica una nicchia di saggistica altamente profittevole e specifica. Rispondi SOLO con l'argomento in 1 frase nella lingua ${genLang}.`;
             const prompt = "Genera un'idea di libro altamente profittevole.";
             const response = await fetchAIWithRetry(prompt, null, 3, systemPrompt);
             return response.trim().replace(/["']/g, ""); 
         }
 
-        function startCountdownForNextBook() {
-            if (!agentActive) return;
-            const isDemo = document.getElementById('demoMode').checked;
-            let secondsLeft = isDemo ? 60 : 86400;
-
-            logAgent(`Ciclo terminato. Prossima esecuzione tra ${isDemo ? '60 secondi' : '24 ore'}.`);
-            document.getElementById('countdownContainer').classList.remove('hidden');
-            const display = document.getElementById('agentCountdown');
-
-            countdownTimer = setInterval(() => {
-                if (!agentActive) { clearInterval(countdownTimer); return; }
-                secondsLeft--;
-                let h = Math.floor(secondsLeft / 3600);
-                let m = Math.floor((secondsLeft % 3600) / 60);
-                let s = secondsLeft % 60;
-                display.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-
-                if (secondsLeft <= 0) {
-                    clearInterval(countdownTimer);
-                    logAgent("Risveglio dell'Agente. Avvio nuovo ciclo produttivo...");
-                    runAgentCycle();
-                }
-            }, 1000);
-        }
-
-        // --- BLUEPRINT E ESTRAZIONE JSON SICURA ---
+        // --- BLUEPRINT ---
         async function triggerManualBlueprint() {
             const idea = document.getElementById('rawIdea').value.trim();
             if (!idea) return showModal("Attenzione", "Inserisci un'idea prima.", "text-red-500");
             try {
                 await generateBlueprintCore(idea);
-                showModal("Blueprint Completato", "Struttura creata. Clicca su 'Forza Scrittura Manuale'.", "text-emerald-500");
+                showModal("Blueprint Completato", "Struttura creata. Usa il Copilot per scrivere i capitoli.", "text-blue-500");
             } catch(e) {} 
         }
 
         async function generateBlueprintCore(ideaText) {
             const genLang = document.getElementById('genLang').value;
-            const btn = document.getElementById('btnGenerateBlueprint');
             const loader = document.getElementById('blueprintLoader');
-            const status = document.getElementById('blueprintStatus');
-            
-            btn.disabled = true; loader.classList.add('active'); status.classList.remove('hidden');
+            loader.classList.add('active');
 
-            const prompt = `Crea un blueprint profittevole mirato al mercato ${genLang} per: "${ideaText}".
-            Rispondi ESCLUSIVAMENTE in formato JSON puro. Scrivi tutti i capitoli per esteso.
-            Usa ESATTAMENTE questa struttura:
+            const prompt = `Crea un blueprint per il mercato ${genLang} per: "${ideaText}".
+            Rispondi ESCLUSIVAMENTE in formato JSON puro. Scrivi tutti i capitoli per esteso senza usare i puntini sospensivi.
+            Struttura OBBLIGATORIA:
             {
                 "title": "Titolo magnetico",
                 "subtitle": "Sottotitolo SEO",
                 "keywords": ["kw1", "kw2", "kw3"],
                 "categories": ["cat1", "cat2"],
-                "back_cover": "Testo per la quarta di copertina",
+                "back_cover": "Testo per quarta di copertina",
                 "toc": ["Introduzione", "Capitolo 1", "Capitolo 2", "Capitolo 3", "Capitolo 4", "Capitolo 5", "Conclusione"],
                 "book_style": "saggistica",
-                "cover_prompt": "Prompt descrittivo in INGLESE per immagine copertina, zero testo"
+                "cover_prompt": "Prompt descrittivo in INGLESE per Midjourney, descrivi l'estetica della copertina, non inserire testi"
             }`;
 
             try {
@@ -582,7 +524,7 @@
 
                 if (!result.toc) throw new Error("TOC mancante.");
                 let parsedToc = Array.isArray(result.toc) ? result.toc : result.toc.split(',').map(s=>s.trim());
-                if (parsedToc.length < 2) throw new Error("TOC troppo corto. Riprovo.");
+                if (parsedToc.length < 2) throw new Error("TOC troppo corto.");
                 
                 document.getElementById('bookTitle').value = result.title || "Titolo Best Seller";
                 document.getElementById('bookSubtitle').value = result.subtitle || "";
@@ -595,7 +537,7 @@
                 updateEditorStyle();
 
                 document.getElementById('aiCoverPrompt').value = result.cover_prompt || result.title;
-                await refreshCoverImage(); 
+                refreshCoverImage(); 
                 
                 generatedKeywords = Array.isArray(result.keywords) ? result.keywords : [];
                 generatedCategories = Array.isArray(result.categories) ? result.categories : [];
@@ -604,106 +546,151 @@
                 generatedTOC = parsedToc;
                 renderTOC();
                 
-                document.getElementById('btnWriteBook').disabled = false;
                 document.getElementById('btnGenerateAPlus').disabled = false;
-                
             } catch (e) {
                 console.error("Errore Blueprint:", e);
-                showModal("Allucinazione AI", "Il motore ha formattato male i dati. Riprovo in automatico.", "text-red-500");
                 throw e; 
             } finally {
-                btn.disabled = false; loader.classList.remove('active'); status.classList.add('hidden');
+                loader.classList.remove('active');
             }
         }
 
-        // --- GENERAZIONE MANOSCRITTO MASSIVO ---
-        async function triggerManualWrite() {
-            if (generatedTOC.length === 0) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
-            await generateFullBookCore();
-            showModal("Libro Completato", "Il manoscritto lungo e i tag immagine sono pronti. Puoi esportarlo in PDF.", "text-emerald-500");
+        // --- KDP COPILOT: STUDIO INTERATTIVO ---
+        function renderTOC() {
+            const container = document.getElementById('tocList');
+            document.getElementById('tocContainer').querySelector('p').classList.add('hidden');
+            
+            container.innerHTML = generatedTOC.map((ch, i) => `
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-800/80 p-3 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors gap-3">
+                    <span class="text-sm font-semibold text-slate-200 flex-1">${ch}</span>
+                    <div class="flex gap-2 w-full sm:w-auto shrink-0">
+                        <button onclick="copilotGenerateChapter(${i})" id="btn-ch-${i}" class="btn-copilot flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-xs font-bold flex items-center justify-center gap-1 shadow-sm">
+                            <i data-lucide="pen-tool" class="w-3 h-3"></i> Scrivi
+                        </button>
+                        <button onclick="copilotGenerateImage('${ch.replace(/'/g, "\\'")}', ${i})" id="btn-img-${i}" class="btn-copilot flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md text-xs font-bold flex items-center justify-center gap-1 shadow-sm">
+                            <i data-lucide="image" class="w-3 h-3"></i> Illustra
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+            container.classList.remove('hidden');
         }
 
-        async function generateFullBookCore() {
-            if (isWriting) return;
-            const title = document.getElementById('bookTitle').value;
-            const msTextarea = document.getElementById('manuscriptContent');
-            const btn = document.getElementById('btnWriteBook');
-            const loader = document.getElementById('writingLoader');
-            const progress = document.getElementById('writingProgress');
-            const status = document.getElementById('writingStatus');
-            const illusMode = document.getElementById('illusMode').value;
-            const style = document.getElementById('bookStyle').value;
+        async function copilotGenerateChapter(index) {
+            const chapterTitle = generatedTOC[index];
+            const btn = document.getElementById(`btn-ch-${index}`);
+            const originalHtml = btn.innerHTML;
             
-            isWriting = true; btn.disabled = true;
-            msTextarea.value = ""; 
-            loader.classList.add('active'); status.classList.remove('hidden');
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Attendi...`;
+            btn.disabled = true;
+            btn.classList.replace('bg-blue-600', 'bg-slate-600');
+            lucide.createIcons();
+
+            const title = document.getElementById('bookTitle').value;
+            const editor = document.getElementById('manuscriptContent');
+            
+            // INIEZIONE DI CONTESTO (Memoria per evitare capitoli sconnessi)
+            let context = "";
+            let currentText = editor.value.trim();
+            if (currentText.length > 0) {
+                // Prende le ultime 800 battute per fornire il "ponte" logico
+                const lastText = currentText.slice(-800).replace(/\n/g, ' ');
+                context = `\n\nCONTESTO NARRATIVO RECENTE (Per collegarti fluidamente senza ripetizioni): "...${lastText}"`;
+            }
+
+            const prompt = `Stai agendo come Ghostwriter Professionista. Il libro è "${title}".
+            Devi scrivere IL TESTO COMPLETO E APPROFONDITO esclusivamente per la sezione: "${chapterTitle}".
+            
+            REGOLE TASSATIVE:
+            1. Scrivi molto materiale, usa argomentazioni profonde, paragrafi ben strutturati e se appropriato esempi pratici. Obiettivo minimo: 1500 parole.
+            2. FORMATTAZIONE: Inizia sempre inserendo il titolo del capitolo su una singola riga, lascia una riga vuota, e scrivi il testo. NESSUN MARDKOWN (non usare asterischi ** o cancelletti #).
+            3. Non inserire note finali o frasi di circostanza. ${context}`;
 
             try {
-                for (let i = 0; i < generatedTOC.length; i++) {
-                    const chapterTitle = generatedTOC[i];
-                    status.innerText = `[${i+1}/${generatedTOC.length}] Scrittura approfondita: ${chapterTitle}...`;
-                    progress.style.width = `${((i) / generatedTOC.length) * 100}%`;
-
-                    // PROMPT SICURO: Strutturato per evitare allucinazioni e timeout.
-                    const prompt = `Agisci come ghostwriter esperto. Stai redigendo una bozza per il libro "${title}".
-                    Scrivi il contenuto per la sezione: "${chapterTitle}".
-                    ISTRUZIONI:
-                    - Scrivi in modo molto dettagliato ed espandi i concetti.
-                    - Suddividi il testo in 3 o 4 sotto-paragrafi logici per allungare il contenuto.
-                    - Non inserire note finali, conclusioni o messaggi di rifiuto. Produci SOLO il testo del libro.`;
-
-                    let chapterContent = "";
-                    try {
-                        chapterContent = await fetchAIWithRetry(prompt);
-                    } catch(err) {
-                        logAgent(`Errore sul capitolo ${chapterTitle}. Riprovo...`);
-                        i--; 
-                        await new Promise(r => setTimeout(r, 3000));
-                        continue;
-                    }
-                    
-                    let cleanText = chapterContent.replace(/\*\*/g, '').replace(/#/g, '');
-                    
-                    let imgTag = "";
-                    if (illusMode !== 'none') {
-                        let colorMod = illusMode === 'bw' ? "black and white ink illustration, clean white background, high contrast" : "full color illustration, vibrant";
-                        let imgPrompt = `book illustration about ${chapterTitle}, ${style} aesthetic, ${colorMod}, no text`;
-                        let promptUrl = await fetchImageWithFallback(imgPrompt, 800, 600);
-                        imgTag = `\n[IMG:${promptUrl}]\n\n`;
-                    }
-                    
-                    msTextarea.value += "\n" + chapterTitle + "\n" + imgTag + cleanText.replace(chapterTitle, '').trim() + "\n\n---\n\n";
-                    msTextarea.scrollTop = msTextarea.scrollHeight; 
-                    updateWordCount();
-                    
-                    await new Promise(r => setTimeout(r, 1500)); 
-                }
-                progress.style.width = `100%`;
-                status.innerText = "Manoscritto completato!";
+                let content = await fetchAIWithRetry(prompt);
+                
+                // Pulizia di sicurezza
+                let cleanText = content.replace(/\*\*/g, '').replace(/#/g, '');
+                
+                // Inserimento nell'editor
+                editor.value += (editor.value.trim() !== "" ? "\n\n" : "") + cleanText.trim() + "\n\n---\n\n";
+                editor.scrollTop = editor.scrollHeight; 
+                updateWordCount();
+                
+                btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Fatto`;
+                btn.classList.replace('bg-slate-600', 'bg-slate-700');
+                btn.disabled = false; // Lascio abilitato nel caso voglia rigenerarlo (dovrà cancellare il testo vecchio a mano però)
+                
+            } catch (e) {
+                console.error(e);
+                btn.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3 text-red-400"></i> Riprova`;
+                btn.classList.replace('bg-slate-600', 'bg-blue-600');
+                btn.disabled = false;
+            } finally {
+                lucide.createIcons();
+                // Aggiorna stima pagine
                 const wCount = parseInt(document.getElementById('wordCount').innerText);
                 document.getElementById('pageCount').value = Math.max(70, Math.floor(wCount / 250));
-            } finally {
-                isWriting = false; btn.disabled = false;
-                setTimeout(() => { loader.classList.remove('active'); }, 2000);
             }
         }
 
+        async function copilotGenerateImage(chapterTitle, index) {
+            const btn = document.getElementById(`btn-img-${index}`);
+            
+            const illusMode = document.getElementById('illusMode').value;
+            if (illusMode === 'none') {
+                showModal("Attenzione", "Hai disattivato le illustrazioni nel menu in alto.", "text-amber-500");
+                return;
+            }
+
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Render...`;
+            btn.disabled = true;
+            btn.classList.replace('bg-emerald-600', 'bg-slate-600');
+            lucide.createIcons();
+
+            const style = document.getElementById('bookStyle').value;
+            const editor = document.getElementById('manuscriptContent');
+
+            let colorMod = illusMode === 'bw' ? "black and white ink illustration, clean white background, high contrast" : "full color illustration, vibrant";
+            let imgPrompt = `book illustration about ${chapterTitle}, ${style} aesthetic, ${colorMod}, no text`;
+
+            try {
+                let promptUrl = await fetchImageWithFallback(imgPrompt, 800, 600);
+                
+                // Inserisce il tag immagine alla fine del testo attuale
+                editor.value += (editor.value.trim() !== "" ? "\n" : "") + `[IMG:${promptUrl}]\n\n`;
+                editor.scrollTop = editor.scrollHeight;
+                
+                btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Inserita`;
+                btn.classList.replace('bg-slate-600', 'bg-slate-700');
+                btn.disabled = false;
+            } catch (e) {
+                console.error(e);
+                btn.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3 text-red-400"></i> Riprova`;
+                btn.classList.replace('bg-slate-600', 'bg-emerald-600');
+                btn.disabled = false;
+            } finally {
+                lucide.createIcons();
+            }
+        }
+
+        // --- A+ CONTENT ---
         async function triggerManualAPlus() {
             const title = document.getElementById('bookTitle').value;
             if (!title) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
             await generateAPlusCore();
-            showModal("Contenuti A+", "Testi persuasivi e grafiche A+ generati.", "text-emerald-500");
+            showModal("Contenuti A+", "Testi persuasivi e grafiche A+ generati.", "text-blue-500");
         }
 
         async function generateAPlusCore() {
             const title = document.getElementById('bookTitle').value;
             const subtitle = document.getElementById('bookSubtitle').value;
             const genLang = document.getElementById('genLang').value;
-            const btn = document.getElementById('btnGenerateAPlus');
             const aPlusTextarea = document.getElementById('aPlusContent');
             const aPlusImagesContainer = document.getElementById('aPlusImagesContainer');
             
-            btn.disabled = true;
             aPlusTextarea.value = "Generazione Moduli di Conversione A+ in corso...";
 
             const prompt = `Sei un copywriter. Scrivi i testi per l'A+ Content del libro "${title}" in lingua ${genLang}.
@@ -740,8 +727,9 @@
                         </div>
                     </div>
                 `;
-            } finally {
-                btn.disabled = false;
+            } catch (e) {
+                console.error(e);
+                aPlusTextarea.value = "Errore durante la generazione A+.";
             }
         }
 
@@ -749,20 +737,6 @@
             document.getElementById('keywordsList').innerHTML = generatedKeywords.map(kw => `<li class="flex items-start gap-2"><i data-lucide="search" class="w-3 h-3 mt-1 shrink-0 text-slate-500"></i> <span>${kw}</span></li>`).join('');
             document.getElementById('categoriesList').innerHTML = generatedCategories.map(cat => `<li class="flex items-start gap-2"><i data-lucide="chevron-right" class="w-3 h-3 mt-1 shrink-0 text-amber-500"></i> <span>${cat}</span></li>`).join('');
             lucide.createIcons();
-        }
-
-        function renderTOC() {
-            const tocList = document.getElementById('tocList');
-            document.getElementById('tocContainer').querySelector('p').classList.add('hidden');
-            tocList.classList.remove('hidden');
-            tocList.innerHTML = generatedTOC.map(ch => `<li class="py-1 border-b border-slate-800 last:border-0">${ch}</li>`).join('');
-        }
-
-        document.getElementById('manuscriptContent').addEventListener('input', updateWordCount);
-        function updateWordCount() {
-            const text = document.getElementById('manuscriptContent').value;
-            const count = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-            document.getElementById('wordCount').innerText = `${count} parole`;
         }
 
         // --- MOTORI DI ESPORTAZIONE KDP ---
@@ -913,7 +887,6 @@
                 try { doc.addImage(imgElement, "JPEG", frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight); } catch(e) {}
             }
 
-            // TITOLO GIGANTE MAIUSCOLO
             doc.setFont("helvetica", "bold");
             let maxTitleSize = 90; 
             doc.setFontSize(maxTitleSize);
@@ -927,29 +900,25 @@
                 if(maxTitleSize < 25) break;
             }
             
-            // Box di contrasto
             doc.setFillColor(bgColor);
             const titleBoxHeight = (splitTitle.length * (maxTitleSize/72) * 1.15) + 0.6;
             doc.rect(frontCoverLeftX, 0.4, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 1.0 : 0), "F");
             
-            // Drop-Shadow Titolo
             doc.setTextColor("#000000"); 
             doc.text(splitTitle, frontCenterX + 0.04, 0.9 + (maxTitleSize/72) + 0.04, { align: "center" });
             doc.setTextColor(txtColor); 
             doc.text(splitTitle, frontCenterX, 0.9 + (maxTitleSize/72), { align: "center" });
             
-            // SOTTOTITOLO
             if(subtitle) {
                 doc.setFont("helvetica", "bold"); doc.setFontSize(16);
                 const splitSub = doc.splitTextToSize(subtitle, PAGE_WIDTH - 1.0);
                 
-                doc.setTextColor("#000000"); // Ombra
+                doc.setTextColor("#000000"); 
                 doc.text(splitSub, frontCenterX + 0.02, 1.2 + (titleBoxHeight) - 0.5 + 0.02, { align: "center" });
-                doc.setTextColor(txtColor); // Colore
+                doc.setTextColor(txtColor); 
                 doc.text(splitSub, frontCenterX, 1.2 + (titleBoxHeight) - 0.5, { align: "center" });
             }
             
-            // BOX AUTORE
             doc.setFillColor(bgColor); 
             doc.rect(frontCoverLeftX, totalHeight - 2.0, PAGE_WIDTH + bleed, 2.0, "F");
             
@@ -962,7 +931,6 @@
             doc.setDrawColor(txtColor); doc.setLineWidth(0.08);
             doc.line(frontCenterX - 2.0, totalHeight - 1.4, frontCenterX + 2.0, totalHeight - 1.4);
 
-            // RETRO
             const backCenterX = (PAGE_WIDTH / 2) + (bleed / 2); doc.setFontSize(18);
             const splitTitleBack = doc.splitTextToSize(displayTitle, PAGE_WIDTH - 1.5);
             doc.text(splitTitleBack, backCenterX, 1.5, { align: "center" });
@@ -971,7 +939,6 @@
             const safeBackWidth = PAGE_WIDTH - 1.5; const splitBack = doc.splitTextToSize(backText, safeBackWidth);
             doc.text(splitBack, backCenterX, 2.5 + (splitTitleBack.length * 0.2), { align: "center", maxWidth: safeBackWidth });
 
-            // BARCODE
             doc.setFillColor("#ffffff"); const barcodeWidth = 2; const barcodeHeight = 1.2;
             doc.rect(spineLeftX - barcodeWidth - 0.25, totalHeight - barcodeHeight - 0.25 - bleed, barcodeWidth, barcodeHeight, "F");
             doc.setFontSize(8); doc.setTextColor("#000000");
