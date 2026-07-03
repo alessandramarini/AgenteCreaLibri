@@ -521,7 +521,7 @@
             }, 1000);
         }
 
-        // GENERAZIONE BLUEPRINT CON PARSING JSON SICURO
+        // GENERAZIONE BLUEPRINT CON ESTRATTORE JSON ANTI-CRASH
         async function triggerManualBlueprint() {
             const idea = document.getElementById('rawIdea').value.trim();
             if (!idea) return showModal("Attenzione", "Inserisci un'idea prima.", "text-red-500");
@@ -537,27 +537,34 @@
             
             btn.disabled = true; loader.classList.add('active'); status.classList.remove('hidden');
 
+            // Corretto il prompt per rimuovere sintassi JSON ambigua (i tre puntini "...") che causava la rottura dell'AI
             const prompt = `Crea un blueprint profittevole mirato al mercato ${genLang} per: "${ideaText}".
-            Rispondi ESCLUSIVAMENTE in formato JSON (senza testo prima o dopo) con questo esatto schema:
+            Rispondi ESCLUSIVAMENTE in formato JSON puro. Usa ESATTAMENTE questa struttura:
             {
                 "title": "Titolo magnetico",
                 "subtitle": "Sottotitolo SEO con beneficio",
-                "keywords": ["7 long-tail keywords esatte, bassa competizione"],
-                "categories": ["3 categorie Amazon specifiche"],
+                "keywords": ["keyword 1", "keyword 2", "keyword 3", "keyword 4", "keyword 5", "keyword 6", "keyword 7"],
+                "categories": ["categoria 1", "categoria 2", "categoria 3"],
                 "back_cover": "Testo persuasivo AIDA per la quarta di copertina",
-                "toc": ["Introduzione", "Capitolo 1...", ... "Conclusione" (esattamente 12 voci per garantire volume)],
+                "toc": ["Introduzione", "Capitolo 1", "Capitolo 2", "Capitolo 3", "Capitolo 4", "Capitolo 5", "Capitolo 6", "Capitolo 7", "Capitolo 8", "Capitolo 9", "Capitolo 10", "Conclusione"],
                 "book_style": "saggistica",
-                "cover_prompt": "Prompt in INGLESE per Midjourney/AI descrivendo una copertina premium, zero testo"
+                "cover_prompt": "Prompt in INGLESE per Midjourney descrivendo una copertina premium, zero testo"
             }`;
 
             try {
                 const response = await fetchAIWithRetry(prompt, null);
-                const cleanJson = response.replace(/```json/g, '').replace(/```/g, '').trim();
+                
+                // Estrattore JSON Robusto (ignora eventuale testo extra aggiunto dall'AI)
+                const startIndex = response.indexOf('{');
+                const endIndex = response.lastIndexOf('}');
+                if (startIndex === -1 || endIndex === -1) throw new Error("JSON non trovato nella risposta AI.");
+                
+                const cleanJson = response.substring(startIndex, endIndex + 1);
                 const result = JSON.parse(cleanJson);
                 
-                document.getElementById('bookTitle').value = result.title;
-                document.getElementById('bookSubtitle').value = result.subtitle;
-                document.getElementById('backCoverText').value = result.back_cover;
+                document.getElementById('bookTitle').value = result.title || "Titolo Sconosciuto";
+                document.getElementById('bookSubtitle').value = result.subtitle || "";
+                document.getElementById('backCoverText').value = result.back_cover || "";
                 
                 const styleSelect = document.getElementById('bookStyle');
                 const styleValue = result.book_style ? result.book_style.toLowerCase() : 'saggistica';
@@ -568,21 +575,23 @@
                 }
                 updateEditorStyle();
 
-                document.getElementById('aiCoverPrompt').value = result.cover_prompt;
+                document.getElementById('aiCoverPrompt').value = result.cover_prompt || "";
                 refreshCoverImage(); 
                 
-                generatedKeywords = result.keywords;
-                generatedCategories = result.categories;
+                generatedKeywords = result.keywords || [];
+                generatedCategories = result.categories || [];
                 renderKeywordsAndCategories();
                 
+                if (!result.toc || result.toc.length === 0) throw new Error("TOC vuoto o non generato.");
                 generatedTOC = result.toc;
                 renderTOC();
                 
                 document.getElementById('btnWriteBook').disabled = false;
                 document.getElementById('btnGenerateAPlus').disabled = false;
             } catch (e) {
-                console.error("Errore Parsing JSON Blueprint:", e);
-                showModal("Errore", "L'AI ha formattato male il JSON. Riprova.", "text-red-500");
+                console.error("Errore Blueprint:", e);
+                showModal("Errore Decodifica", "L'AI ha formattato male la struttura. L'agente riproverà in automatico.", "text-red-500");
+                throw e; // FONDAMENTALE: Lancia l'errore per bloccare il ciclo e forzare l'agente a riprovare in pulito
             } finally {
                 btn.disabled = false; loader.classList.remove('active'); status.classList.add('hidden');
             }
@@ -897,7 +906,7 @@
                 if(maxTitleSize < 25) break;
             }
             
-            // Box di contrasto (Opzionale, ma mantiene leggibilità su qualsiasi immagine)
+            // Box di contrasto
             doc.setFillColor(bgColor);
             const titleBoxHeight = (splitTitle.length * (maxTitleSize/72) * 1.15) + 0.6;
             doc.rect(frontCoverLeftX, 0.4, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 1.0 : 0), "F");
@@ -905,7 +914,6 @@
             // Effetto Ombra/Drop-Shadow per staccare il testo in thumbnail
             doc.setTextColor("#000000"); 
             doc.text(splitTitle, frontCenterX + 0.04, 0.9 + (maxTitleSize/72) + 0.04, { align: "center" });
-            // Testo Principale
             doc.setTextColor(txtColor); 
             doc.text(splitTitle, frontCenterX, 0.9 + (maxTitleSize/72), { align: "center" });
             
@@ -921,7 +929,7 @@
                 doc.text(splitSub, frontCenterX, 1.2 + (titleBoxHeight) - 0.5, { align: "center" });
             }
             
-            // --- BOX AUTORE (Massima visibilità) ---
+            // --- BOX AUTORE ---
             doc.setFillColor(bgColor); 
             doc.rect(frontCoverLeftX, totalHeight - 2.0, PAGE_WIDTH + bleed, 2.0, "F");
             
