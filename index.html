@@ -52,7 +52,7 @@
                 <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 tracking-tight" style="font-family: 'Playfair Display', serif;">KDP COPILOT STUDIO</h1>
                 <p class="text-slate-400 mt-2 font-medium flex items-center gap-2 justify-center md:justify-start">
                     <span class="bg-blue-900/50 text-blue-400 px-2 py-0.5 rounded text-xs border border-blue-700/50">Direct-API Core</span>
-                    Scrittura Senza Limiti di Tempo (Anti-Vercel Timeout)
+                    Generazione 10 Capitoli & Coerenza Visiva
                 </p>
             </div>
             <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-center sm:justify-start">
@@ -86,7 +86,7 @@
                     <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2">
                         <i data-lucide="cpu" class="w-6 h-6"></i> Console di Regia Editoriale
                     </h2>
-                    <p class="text-xs text-blue-600/80 mt-1">Nessun limite di timeout. Il browser elaborerà testi giganteschi senza interrompersi.</p>
+                    <p class="text-xs text-blue-600/80 mt-1">Nessun limite di timeout. Struttura automatica a 10 Capitoli.</p>
                 </div>
                 
                 <button id="btnToggleAgent" onclick="runPrepCycle()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg transition-colors">
@@ -120,7 +120,7 @@
             <div class="lg:col-span-1 space-y-6">
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
                     <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2 border-b border-slate-700 pb-2">
-                        <i data-lucide="target" class="text-amber-500 w-5 h-5"></i> Metadati Algoritmo
+                        <i data-lucide="target" class="text-amber-500 w-5 h-5"></i> Metadati & Stile Globale
                     </h2>
                     <div class="space-y-4">
                         <div>
@@ -134,6 +134,14 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Autore Pen-Name</label>
                             <input type="text" id="bookAuthor" value="Alessandra Marini" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
+                        </div>
+                        <div class="pt-2 border-t border-slate-700">
+                            <label class="block text-xs font-semibold text-emerald-400 uppercase mb-1 flex items-center justify-between">
+                                Stile Visivo Master (Coerenza)
+                                <button onclick="regenerateMasterStyle()" class="text-emerald-500 hover:text-emerald-300 bg-slate-800 px-2 py-1 rounded flex items-center gap-1 text-[10px] transition-colors"><i data-lucide="sparkles" class="w-3 h-3"></i> AI</button>
+                            </label>
+                            <textarea id="masterVisualStyle" rows="3" placeholder="Es: 'cinematic lighting, ultra detailed 8k, warm colors, watercolor style'" class="w-full bg-slate-900 border border-emerald-900 rounded-lg px-3 py-2 text-emerald-100 text-xs focus:border-emerald-500 resize-none"></textarea>
+                            <p class="text-[9px] text-slate-500 mt-1">Applica questo stile coerente a TUTTE le immagini generate (Copertina e Capitoli).</p>
                         </div>
                     </div>
                 </div>
@@ -154,9 +162,9 @@
                     <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                            <i data-lucide="list-ordered" class="text-blue-400 w-5 h-5"></i> KDP Copilot: Fabbrica Capitoli
+                            <i data-lucide="list-ordered" class="text-blue-400 w-5 h-5"></i> KDP Copilot: Fabbrica Capitoli (10 Cap. Garantiti)
                         </h2>
-                        <span class="text-xs text-blue-400 font-medium bg-blue-900/30 px-3 py-1 rounded-full border border-blue-700/50">Elaborazione Estesa + Immagini Full-Page</span>
+                        <span class="text-xs text-blue-400 font-medium bg-blue-900/30 px-3 py-1 rounded-full border border-blue-700/50">Immagini con Stile Master Applicato</span>
                     </div>
                     
                     <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-2 max-h-96 overflow-y-auto" id="tocContainer">
@@ -209,28 +217,40 @@
                     </div>
                     <div>
                         <textarea id="aPlusContent" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-5 py-4 text-emerald-100 text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-y leading-relaxed mb-4" placeholder="I testi persuasivi per i tuoi moduli A+ appariranno qui..."></textarea>
-                        <div id="aPlusImagesContainer" class="hidden"></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl mt-8 border-t-4 border-t-amber-500">
-            <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP HD</h2>
+            <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP HD & Copertina</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
-                <div class="md:col-span-4 flex flex-col md:flex-row items-center gap-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-                    <div class="flex-shrink-0 w-32 h-48 bg-slate-900 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden shadow-lg relative">
-                        <i data-lucide="image" class="w-8 h-8 text-slate-700 absolute z-0"></i>
-                        <img id="aiCoverPreview" crossOrigin="Anonymous" src="" class="w-full h-full object-cover relative z-10 hidden" alt="Cover Preview">
-                    </div>
-                    <div class="flex-1 w-full">
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 text-amber-500 flex items-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina Base
-                        </label>
-                        <textarea id="aiCoverPrompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 text-xs focus:border-amber-500 transition-colors resize-none mb-3"></textarea>
-                        <button onclick="refreshCoverImageBtn()" id="btnGenCoverImg" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center gap-2 shadow">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Genera Immagine
-                        </button>
+                
+                <!-- COPERTINA GENERATOR -->
+                <div class="md:col-span-4 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+                        <div class="flex-shrink-0 w-32 h-48 bg-slate-900 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden shadow-lg relative">
+                            <i data-lucide="image" class="w-8 h-8 text-slate-700 absolute z-0"></i>
+                            <img id="aiCoverPreview" crossOrigin="Anonymous" src="" class="w-full h-full object-cover relative z-10 hidden" alt="Cover Preview">
+                        </div>
+                        <div class="flex-1 w-full space-y-3">
+                            <div class="flex justify-between items-center">
+                                <label class="block text-xs font-semibold text-amber-500 uppercase flex items-center gap-2">
+                                    <i data-lucide="sparkles" class="w-4 h-4"></i> Prompt Immagine Copertina Base
+                                </label>
+                                <button onclick="ottimizzaPromptCopertina()" id="btnOptimizeCoverPrompt" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded shadow flex items-center gap-1 transition-colors">
+                                    <i data-lucide="wand-2" class="w-3 h-3"></i> AI Prompt Ottimizzato
+                                </button>
+                            </div>
+                            <textarea id="aiCoverPrompt" rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-emerald-400 text-sm focus:border-amber-500 transition-colors resize-y" placeholder="Il prompt della copertina apparirà qui. Verrà integrato con lo Stile Visivo Master."></textarea>
+                            
+                            <div class="flex gap-4 items-center flex-wrap">
+                                <button onclick="refreshCoverImageBtn()" id="btnGenCoverImg" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors flex items-center gap-2 shadow-lg">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Genera Immagine Copertina
+                                </button>
+                                <p class="text-xs text-slate-400 max-w-sm"><i data-lucide="info" class="w-3 h-3 inline"></i> L'immagine verrà rigenerata e usata come base per il PDF finale assieme ai testi.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -247,10 +267,10 @@
                 <div class="md:col-span-2 flex items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                     <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i data-lucide="palette" class="text-slate-300"></i></div>
                     <div class="flex-1">
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Colori Copertina</label>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Colori Layout Copertina</label>
                         <div class="flex h-8 gap-2 w-full">
-                            <input type="color" id="coverColor" value="#0f172a" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
-                            <input type="color" id="textColor" value="#fbbf24" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
+                            <input type="color" id="coverColor" value="#0f172a" title="Sfondo" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
+                            <input type="color" id="textColor" value="#fbbf24" title="Testo" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
                         </div>
                     </div>
                 </div>
@@ -313,7 +333,6 @@
         lucide.createIcons();
 
         let generatedTOC = [];
-        let generatedKeywords = [];
         let generatedCategories = [];
         let chapterImages = {}; // Dizionario per salvare le immagini dei capitoli (DataURL)
 
@@ -370,13 +389,14 @@
             editor.classList.add(`style-${style}`);
         }
 
-        // --- MOTORE IMMAGINI ---
+        // --- MOTORE IMMAGINI (Pollinations) ---
         async function fetchImageWithFallback(promptText, width, height) {
             const seed = Math.floor(Math.random() * 1000000); 
-            return `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
+            // Encode the prompt text. Adding "NO TEXT, NO LETTERS, CLEAN BACKGROUND" to help Pollinations
+            const finalPrompt = promptText + ", NO TEXT, NO LETTERS, NO WORDS, CLEAN BACKGROUND, HIGH QUALITY";
+            return `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
         }
         
-        // Helper per caricare immagini come Data URL (necessario per inserirle in modo sicuro nel PDF)
         function loadImageAsDataURL(url) {
             return new Promise((resolve) => {
                 const img = new Image();
@@ -394,21 +414,78 @@
             });
         }
 
+        // --- RIGENERAZIONE E OTTIMIZZAZIONE STILI ---
+        async function regenerateMasterStyle() {
+            const title = document.getElementById('bookTitle').value;
+            if(!title) return showModal("Attenzione", "Genera prima il blueprint o inserisci un titolo.", "text-amber-500");
+            
+            try {
+                const prompt = `Sei un art director di alto livello. Crea in INGLESE una breve descrizione dello stile visivo perfetto per un libro intitolato "${title}". 
+                Lo stile deve essere coerente. Esempio: "minimalist vector art, deep blue and gold colors, clean design" oppure "ultra-realistic cinematic photography, dramatic lighting, cyberpunk theme". 
+                Rispondi SOLO con il prompt artistico di 1-2 righe. Nient'altro.`;
+                
+                const newStyle = await fetchAIWithRetry(prompt);
+                document.getElementById('masterVisualStyle').value = newStyle.replace(/["']/g, "").trim();
+            } catch(e) {
+                showModal("Errore", "Impossibile rigenerare lo stile", "text-red-500");
+            }
+        }
+
+        async function ottimizzaPromptCopertina() {
+            const title = document.getElementById('bookTitle').value;
+            const subtitle = document.getElementById('bookSubtitle').value;
+            const masterStyle = document.getElementById('masterVisualStyle').value;
+            const btn = document.getElementById('btnOptimizeCoverPrompt');
+            
+            if(!title) return showModal("Attenzione", "Genera prima un titolo.", "text-amber-500");
+
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Attendi...`;
+            lucide.createIcons();
+            
+            try {
+                const prompt = `Sei un esperto di prompt generation per Midjourney/AI Images. 
+                Devi creare un prompt INGLESE eccellente per generare lo sfondo (artwork puro) della copertina di un libro intitolato "${title}" (sottotitolo: "${subtitle}").
+                IMPORTANTE: L'immagine non deve contenere scritte o titoli, solo l'arte visiva.
+                
+                DEVI INTEGRARE QUESTO STILE VISIVO MASTER OBBLIGATORIAMENTE: "${masterStyle}".
+                
+                Scrivi solo il prompt nudo e crudo in inglese, molto dettagliato, incentrato su un soggetto centrale forte.`;
+                
+                const newPrompt = await fetchAIWithRetry(prompt);
+                document.getElementById('aiCoverPrompt').value = newPrompt.replace(/["']/g, "").trim();
+            } catch (e) {
+                showModal("Errore", "Errore nella generazione prompt.", "text-red-500");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i data-lucide="wand-2" class="w-3 h-3"></i> AI Prompt Ottimizzato`;
+                lucide.createIcons();
+            }
+        }
+
         async function refreshCoverImageBtn() {
             const btn = document.getElementById('btnGenCoverImg');
             btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Generazione...`;
             btn.disabled = true;
             lucide.createIcons();
             try { await refreshCoverImage(); } finally {
-                btn.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4"></i> Genera Immagine`;
+                btn.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4"></i> Genera Immagine Copertina`;
                 btn.disabled = false;
                 lucide.createIcons();
             }
         }
 
         async function refreshCoverImage() {
-            const promptText = document.getElementById('aiCoverPrompt').value;
+            let promptText = document.getElementById('aiCoverPrompt').value;
+            const masterStyle = document.getElementById('masterVisualStyle').value;
+            
             if(!promptText) return;
+            
+            // Se l'utente non ha ottimizzato il prompt, forziamo l'inclusione del master style per sicurezza
+            if(masterStyle && !promptText.includes(masterStyle)) {
+                promptText += `, Style: ${masterStyle}`;
+            }
+
             const img = document.getElementById('aiCoverPreview');
             img.classList.remove('hidden');
             const url = await fetchImageWithFallback(promptText, 600, 900);
@@ -416,16 +493,6 @@
             return new Promise((resolve) => {
                 img.onload = () => resolve();
                 img.onerror = () => resolve(); 
-                img.src = url;
-            });
-        }
-
-        function loadImageForPdf(url) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.onload = () => resolve(img);
-                img.onerror = () => resolve(null);
                 img.src = url;
             });
         }
@@ -453,7 +520,7 @@
                     headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         "model": "meta-llama/llama-3.1-8b-instruct",
-                        "temperature": 0.3,
+                        "temperature": 0.4,
                         "messages": [
                             { "role": "system", "content": systemText },
                             { "role": "user", "content": prompt }
@@ -467,7 +534,7 @@
                     headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         "model": "llama-3.1-70b-versatile",
-                        "temperature": 0.3,
+                        "temperature": 0.4,
                         "messages": [
                             { "role": "system", "content": systemText },
                             { "role": "user", "content": prompt }
@@ -482,7 +549,7 @@
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: prompt }] }],
                         systemInstruction: { parts: [{ text: systemText }] },
-                        generationConfig: { temperature: 0.3 }
+                        generationConfig: { temperature: 0.4 }
                     })
                 };
             }
@@ -537,7 +604,7 @@
                     logAgent(`Trovata: "${idea}"`);
                 }
 
-                logAgent("Generazione Blueprint KDP e Struttura TOC...");
+                logAgent("Generazione Blueprint KDP (10 Capitoli Obbligatori)...");
                 await generateBlueprintCore(idea);
                 logAgent("Blueprint completato.");
 
@@ -545,7 +612,7 @@
                 await generateAPlusCore();
                 logAgent("A+ Content Generato.");
 
-                showModal("Studio Pronto", "Il Blueprint e gli A+ sono stati generati. Ora usa la Fabbrica Capitoli.", "text-blue-500");
+                showModal("Studio Pronto", "Il Blueprint, lo stile grafico e gli A+ sono stati generati. Usa la Fabbrica Capitoli.", "text-blue-500");
 
             } catch (error) {
                 logAgent(`❌ ERRORE: ${error.message}`);
@@ -560,7 +627,7 @@
             if (!idea) return showModal("Attenzione", "Inserisci un'idea prima.", "text-red-500");
             try {
                 await generateBlueprintCore(idea);
-                showModal("Blueprint Completato", "Struttura creata. Usa il Copilot per scrivere i capitoli.", "text-blue-500");
+                showModal("Blueprint Completato", "Struttura 10 Capitoli creata. Usa il Copilot per scrivere.", "text-blue-500");
             } catch(e) {} 
         }
 
@@ -568,22 +635,39 @@
             const genLang = document.getElementById('genLang').value;
             const loader = document.getElementById('blueprintLoader');
             loader.classList.add('active');
+            chapterImages = {}; // Reset immagini
 
-            // Resetta le immagini dei capitoli per un nuovo blueprint
-            chapterImages = {};
-
-            const prompt = `Crea un blueprint per il mercato ${genLang} per: "${ideaText}".
-            Rispondi ESCLUSIVAMENTE in formato JSON puro.
-            Struttura OBBLIGATORIA:
+            const prompt = `Crea un blueprint strutturale per un libro per il mercato ${genLang} basato su: "${ideaText}".
+            Rispondi ESCLUSIVAMENTE in formato JSON puro, nient'altro.
+            
+            REGOLE FONDAMENTALI:
+            1. L'indice ("toc") DEVE contenere ESATTAMENTE 10 capitoli (dal Capitolo 1 al Capitolo 10), oltre a "Introduzione" e "Conclusione". In totale 12 elementi.
+            2. Il campo "master_visual_style" deve essere una descrizione in INGLESE per l'AI generator di immagini. Descrivi uno stile visivo accattivante e coerente (es. "modern clean vector art" oppure "dark dramatic lighting, realistic").
+            
+            Struttura JSON OBBLIGATORIA:
             {
                 "title": "Titolo magnetico",
-                "subtitle": "Sottotitolo SEO",
+                "subtitle": "Sottotitolo SEO attrattivo",
                 "keywords": ["kw1", "kw2", "kw3"],
-                "categories": ["cat1", "cat2"],
-                "back_cover": "Testo per quarta di copertina",
-                "toc": ["Introduzione", "Capitolo 1: Titolo...", "Capitolo 2: Titolo...", "Capitolo 3: Titolo...", "Capitolo 4: Titolo...", "Capitolo 5: Titolo...", "Conclusione"],
+                "categories": ["categoria 1", "categoria 2"],
+                "back_cover": "Testo persuasivo per la quarta di copertina",
+                "toc": [
+                    "Introduzione", 
+                    "Capitolo 1: ...", 
+                    "Capitolo 2: ...", 
+                    "Capitolo 3: ...", 
+                    "Capitolo 4: ...", 
+                    "Capitolo 5: ...", 
+                    "Capitolo 6: ...", 
+                    "Capitolo 7: ...", 
+                    "Capitolo 8: ...", 
+                    "Capitolo 9: ...", 
+                    "Capitolo 10: ...", 
+                    "Conclusione"
+                ],
                 "book_style": "saggistica",
-                "cover_prompt": "Prompt in INGLESE per cover"
+                "master_visual_style": "Prompt INGLESE per lo stile artistico coerente di tutte le illustrazioni del libro.",
+                "cover_prompt": "Prompt INGLESE per la copertina, che include il master_visual_style e un soggetto."
             }`;
 
             try {
@@ -593,28 +677,31 @@
                 const start = cleanJson.indexOf('{');
                 const end = cleanJson.lastIndexOf('}');
                 
-                if (start === -1 || end === -1) throw new Error("JSON non trovato.");
+                if (start === -1 || end === -1) throw new Error("JSON non trovato nella risposta AI.");
                 cleanJson = cleanJson.substring(start, end + 1);
                 
                 let result;
                 try { result = JSON.parse(cleanJson); } catch(parseErr) { throw new Error("JSON sintatticamente errato."); }
 
-                if (!result.toc) throw new Error("TOC mancante.");
-                let parsedToc = Array.isArray(result.toc) ? result.toc : result.toc.split(',').map(s=>s.trim());
-                if (parsedToc.length < 2) throw new Error("TOC troppo corto.");
+                if (!result.toc || !Array.isArray(result.toc)) throw new Error("Indice (TOC) mancante o non valido.");
                 
                 document.getElementById('bookTitle').value = result.title || "Titolo Best Seller";
                 document.getElementById('bookSubtitle').value = result.subtitle || "";
                 document.getElementById('backCoverText').value = result.back_cover || "";
                 
-                document.getElementById('aiCoverPrompt').value = result.cover_prompt || result.title;
+                // Setta stile e cover
+                document.getElementById('masterVisualStyle').value = result.master_visual_style || "high quality digital illustration, clean layout";
+                document.getElementById('aiCoverPrompt').value = result.cover_prompt || `${result.title}, ${result.master_visual_style}`;
+                
+                // Aggiorna anteprima cover
                 refreshCoverImage(); 
                 
                 let cats = Array.isArray(result.categories) ? result.categories : [];
                 document.getElementById('categoriesList').innerHTML = cats.map(cat => `<li class="flex items-start gap-2"><i data-lucide="chevron-right" class="w-3 h-3 mt-1 shrink-0 text-amber-500"></i> <span>${cat}</span></li>`).join('');
                 
-                generatedTOC = parsedToc;
+                generatedTOC = result.toc;
                 renderTOC();
+                
             } catch (e) {
                 console.error("Errore Blueprint:", e);
                 throw e; 
@@ -641,8 +728,8 @@
                         <button onclick="copilotGenerateChunk('outro', '${ch.replace(/'/g, "\\'")}', ${i})" id="btn-outro-${i}" class="btn-copilot w-full bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm">
                             3. Conclusione
                         </button>
-                        <button onclick="copilotGenerateImage('${ch.replace(/'/g, "\\'")}', ${i})" id="btn-img-${i}" class="btn-copilot w-full bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm flex items-center justify-center gap-1">
-                            <i data-lucide="image" class="w-3 h-3"></i> Immagine
+                        <button onclick="copilotGenerateImage('${ch.replace(/'/g, "\\'")}', ${i})" id="btn-img-${i}" class="btn-copilot w-full bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm flex items-center justify-center gap-1" title="Usa lo Stile Master">
+                            <i data-lucide="image" class="w-3 h-3"></i> Img (Stile Master)
                         </button>
                     </div>
                 </div>
@@ -661,19 +748,17 @@
 
             try {
                 const bookTitle = document.getElementById('bookTitle').value;
-                const style = document.getElementById('bookStyle').value;
-                let visualStyle = style === 'romanzo' 
-                    ? 'cinematic, dramatic lighting, detailed illustration, digital art' 
-                    : 'clean, professional, minimalist illustration, vector art style, high quality';
+                const masterStyle = document.getElementById('masterVisualStyle').value || 'clean simple illustration';
                 
-                const prompt = `Vertical book illustration for chapter "${chapterTitle}" of book "${bookTitle}". ${visualStyle}`;
+                // Prompt molto specifico per chapter art senza scritte
+                const prompt = `Vertical artwork representing concept: "${chapterTitle}". Book: "${bookTitle}". Artistic Style: ${masterStyle}. NO TEXT. NO TITLES.`;
                 
                 const url = await fetchImageWithFallback(prompt, 600, 900);
                 const dataUrl = await loadImageAsDataURL(url);
                 
                 if (dataUrl) {
                     chapterImages[index] = dataUrl;
-                    btn.innerHTML = `<i data-lucide="check" class="w-3 h-3 inline"></i> Copertina Cap.`;
+                    btn.innerHTML = `<i data-lucide="check" class="w-3 h-3 inline"></i> Img Ok`;
                     btn.classList.replace('bg-emerald-600', 'bg-emerald-800');
                     btn.classList.replace('hover:bg-emerald-500', 'hover:bg-emerald-700');
                 } else {
@@ -706,27 +791,27 @@
             let currentText = editor.value.trim();
             if (currentText.length > 0) {
                 let words = currentText.split(/\s+/);
-                let lastWords = words.slice(-200).join(' ').replace(/\[IMG:.*?\]/g, ''); 
-                context = `\n\n[CONTESTO per continuità: il testo precedente finiva così: "...${lastWords}". Continua in modo iper-dettagliato.]`;
+                let lastWords = words.slice(-150).join(' ').replace(/\[IMG:.*?\]/g, ''); 
+                context = `\n\n[CONTESTO per fluidità (questo è il testo che precede): "...${lastWords}". Usa questo contesto per collegarti in modo fluido.]`;
             }
 
-            // Aggiunto per evitare ridondanze e ripetizioni
-            let antiLoopPrompt = "\nNON ripetere MAI le definizioni base e NON inserire MAI frasi del tipo 'Nel capitolo precedente abbiamo visto' o mini-conclusioni alla fine del paragrafo. Scrivi il testo nudo e crudo.";
+            let antiLoopPrompt = "\nREGOLE VITALI: NON usare frasi metanarrative come 'Nel capitolo precedente abbiamo visto' o 'In questa sezione esploreremo'. Scrivi direttamente i contenuti pratici, concreti e narrativi in modo maturo e diretto.";
 
             let prompt = "";
             if (chunkType === 'intro') {
                 prompt = `Scrivi l'introduzione per il capitolo "${chapterTitle}" del libro "${title}".
-                Usa il framework PAS (Problema, Agitazione, Soluzione) in modo sottile. Obiettivo: ~400 parole. Scrivi in ${genLang}. Inizia con il titolo del capitolo. ${antiLoopPrompt}`;
+                Usa il framework PAS (Problema, Agitazione, Soluzione) in modo sottile per catturare il lettore. Obiettivo: ~350 parole. Scrivi in ${genLang}. INIZIA IL TESTO SCRIVENDO IL TITOLO DEL CAPITOLO ESATTAMENTE COSÌ COM'È, SEGUITO DA A CAPO. ${antiLoopPrompt}`;
             } else if (chunkType === 'body') {
-                prompt = `Scrivi la PARTE CENTRALE ESTESA del capitolo "${chapterTitle}" del libro "${title}".
-                DEVI SCRIVERE UN TESTO LUNGHISSIMO E DETTAGLIATO (Obiettivo: 800-1200 parole). Spiega teorie, fai esempi pratici o case-study, aggiungi elenchi puntati unici. Scrivi in ${genLang}. NON riscrivere il titolo. ${context} ${antiLoopPrompt}`;
+                prompt = `Scrivi la PARTE CENTRALE ESTESA e dettagliatissima del capitolo "${chapterTitle}" del libro "${title}".
+                Devi produrre un testo LUNGO E CORPOSO (circa 800-1200 parole). Spiega teorie, fornisci esempi concreti o casi di studio, aggiungi passaggi tecnici o liste utili al lettore. Scrivi in ${genLang}. NON riscrivere il titolo del capitolo all'inizio. ${context} ${antiLoopPrompt}`;
             } else if (chunkType === 'outro') {
-                prompt = `Scrivi la conclusione per il capitolo "${chapterTitle}" del libro "${title}".
-                Riassumi i concetti con una prospettiva nuova e dai un invito all'azione forte. Obiettivo: ~300 parole. Scrivi in ${genLang}. ${context} ${antiLoopPrompt}`;
+                prompt = `Scrivi la conclusione del capitolo "${chapterTitle}" del libro "${title}".
+                Tira le fila del discorso con un pensiero profondo e offri un invito all'azione o uno spunto di riflessione per il prossimo capitolo. Obiettivo: ~250 parole. Scrivi in ${genLang}. ${context} ${antiLoopPrompt}`;
             }
 
             try {
                 let content = await fetchAIWithRetry(prompt);
+                // Pulizia risposte robot
                 content = content.replace(/^(Ecco il|Ecco l'|Certo,|Sure,|Here is).*?\n/i, ''); 
                 content = content.replace(/\*\*/g, '').replace(/#/g, ''); 
                 
@@ -752,7 +837,7 @@
                 btn.disabled = false; btn.classList.remove('opacity-50');
                 lucide.createIcons();
                 const wCount = parseInt(document.getElementById('wordCount').innerText);
-                document.getElementById('pageCount').value = Math.max(24, Math.floor(wCount / 250));
+                document.getElementById('pageCount').value = Math.max(24, Math.floor(wCount / 220));
             }
         }
 
@@ -770,7 +855,10 @@
             const aPlusTextarea = document.getElementById('aPlusContent');
             
             aPlusTextarea.value = "Generazione Moduli A+ in corso...";
-            const prompt = `Sei un copywriter. Scrivi i testi A+ Content del libro "${title}" in lingua ${genLang}. MODULO 1: Hook. MODULO 2: 3 Benefici. MODULO 3: Call To Action. Niente markdown.`;
+            const prompt = `Sei un esperto copywriter Amazon KDP. Scrivi i testi A+ Content del libro "${title}" in lingua ${genLang}. Crea 3 moduli: 
+            MODULO 1: Frase gancio emotiva (Hero Image). 
+            MODULO 2: Elenco dei 3 benefici o moduli principali del libro. 
+            MODULO 3: Call To Action persuasiva (es. "Scorri in alto e clicca Acquista Ora"). Niente formattazione markdown.`;
 
             try {
                 const responseText = await fetchAIWithRetry(prompt);
@@ -865,22 +953,19 @@
                     if (isChapterTitle) {
                         let tocIndex = generatedTOC.findIndex(t => para.includes(t) || t.includes(para));
                         
-                        // SE il capitolo ha un'immagine generata
                         if (tocIndex !== -1 && chapterImages[tocIndex]) {
-                            // Creiamo una pagina nuova per l'immagine
+                            // Pagina per l'immagine
                             if (pageNum > 1 || cursorY > marginTop) {
                                 doc.addPage();
                                 pageNum++;
                             }
-                            // Inserisci l'immagine a pagina intera (dimensione esatta 6x9 per adattarsi)
                             doc.addImage(chapterImages[tocIndex], "JPEG", 0, 0, PAGE_WIDTH, PAGE_HEIGHT);
                             
-                            // Aggiungiamo un'altra pagina vuota per far iniziare il testo del capitolo
+                            // Nuova pagina per il testo del capitolo
                             doc.addPage();
                             pageNum++;
                             cursorY = marginTop;
                         } else {
-                            // Break di pagina standard
                             if (cursorY > marginTop + 0.5) { printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++; }
                         }
                         
