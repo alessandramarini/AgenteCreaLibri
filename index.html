@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KDP Empire Builder - 100 Pages Pro</title>
+    <title>KDP Empire Builder - Vercel Edition Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -12,105 +12,939 @@
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; }
         .btn-gold { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); color: #000; font-weight: 800; transition: all 0.3s; }
-        .agent-terminal { font-family: 'Fira Code', monospace; background-color: #020617; border: 1px solid #10b981; }
-        .terminal-text { color: #34d399; }
+        .btn-gold:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.4); }
+        .btn-gold:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .btn-agent { background: linear-gradient(135deg, #10b981 0%, #047857 100%); color: #fff; font-weight: 800; transition: all 0.3s; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .btn-agent:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); }
+        .btn-agent.active { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+
         .loader-bar { width: 100%; height: 4px; background-color: #1e293b; border-radius: 2px; overflow: hidden; display: none; }
         .loader-bar.active { display: block; }
-        .loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.3s ease; }
+        .loader-progress { width: 0%; height: 100%; background: linear-gradient(90deg, #fbbf24, #d97706); transition: width 0.3s ease; }
+        
+        .agent-terminal { font-family: 'Fira Code', monospace; background-color: #020617; border: 1px solid #10b981; box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.1); }
+        .terminal-text { color: #34d399; text-shadow: 0 0 5px rgba(52, 211, 153, 0.5); }
+        
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        textarea::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        .style-saggistica { font-family: Georgia, serif; line-height: 1.8; font-size: 1.05rem; }
+        .style-romanzo { font-family: 'Times New Roman', Times, serif; line-height: 1.6; font-size: 1.1rem; }
+        .style-manuale { font-family: 'Inter', sans-serif; line-height: 1.5; font-size: 0.95rem; }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8 pb-24">
 
     <div class="max-w-7xl mx-auto space-y-6">
-        <header class="border-b border-slate-800 pb-6">
-            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600">KDP EMPIRE PRO</h1>
-            <p class="text-emerald-400 text-sm">Motore: OpenRouter | Capacità: 100+ Pagine</p>
+        
+        <header class="text-center md:text-left flex flex-col md:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-4">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600 tracking-tight" style="font-family: 'Playfair Display', serif;">KDP EMPIRE AI</h1>
+                <p class="text-slate-400 mt-2 font-medium flex items-center gap-2 justify-center md:justify-start">
+                    <span class="bg-emerald-900/50 text-emerald-400 px-2 py-0.5 rounded text-xs border border-emerald-700/50">Vercel Secure Core</span>
+                    Auto-Generatore Agentico Always-On (100+ Pagine)
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-center sm:justify-start">
+                <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Motore AI Testo</label>
+                    <select id="aiProvider" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm">
+                        <option value="groq" class="bg-slate-800">⚡ Groq</option>
+                        <option value="gemini" class="bg-slate-800">🧠 Gemini</option>
+                        <option value="openrouter" selected class="bg-slate-800">🚀 OpenRouter</option>
+                    </select>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
+                    <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Lingua</label>
+                    <select id="genLang" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm">
+                        <option value="Italiano" class="bg-slate-800">🇮🇹 Italiano</option>
+                        <option value="Inglese" selected class="bg-slate-800">🇬🇧 Inglese</option>
+                        <option value="Spagnolo" class="bg-slate-800">🇪🇸 Spagnolo</option>
+                    </select>
+                </div>
+                <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
+                    <label class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider mb-1">Illustrazioni</label>
+                    <select id="illusMode" class="bg-transparent text-emerald-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm border-b border-emerald-500/30">
+                        <option value="bw" selected class="bg-slate-800">Bianco e Nero</option>
+                        <option value="color" class="bg-slate-800">A Colori</option>
+                        <option value="none" class="bg-slate-800">Nessuna Illustrazione</option>
+                    </select>
+                </div>
+            </div>
         </header>
 
-        <div class="agent-terminal rounded-2xl p-6 shadow-2xl">
-            <h2 class="text-lg font-bold text-emerald-400 mb-4">Console Operativa</h2>
-            <div class="bg-black/50 rounded-lg p-4 h-40 overflow-y-auto" id="agentConsole">
-                <div class="terminal-text text-xs space-y-1" id="agentLogOutput"></div>
+        <div class="agent-terminal rounded-2xl p-6 shadow-2xl relative overflow-hidden mb-8">
+            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500 animate-pulse"></div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 border-b border-emerald-900/50 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2">
+                        <i data-lucide="bot" class="w-6 h-6"></i> Agente Autonomo (Sistema Antiproiettile)
+                    </h2>
+                    <p class="text-xs text-emerald-600/80 mt-1">Sfrutta l'orchestrazione lato client per aggirare il timeout di Vercel.</p>
+                </div>
+                
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-400">Modalità Test (1 min loop):</label>
+                        <input type="checkbox" id="demoMode" class="w-4 h-4 accent-emerald-500" checked>
+                    </div>
+                    <button id="btnToggleAgent" onclick="toggleAgent()" class="btn-agent py-3 px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg">
+                        <i data-lucide="power" class="w-5 h-5"></i>
+                        <span id="agentBtnText">ATTIVA AUTOPILOTA</span>
+                    </button>
+                </div>
             </div>
-            <button id="btnToggleAgent" onclick="toggleAgent()" class="mt-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-6 rounded-lg w-full">ATTIVA AUTOPILOTA</button>
+
+            <div class="bg-black/50 rounded-lg p-4 h-40 overflow-y-auto border border-emerald-900/30" id="agentConsole">
+                <div class="terminal-text text-xs space-y-1" id="agentLogOutput">
+                    <p class="opacity-50">> In attesa di attivazione protocollo AI...</p>
+                </div>
+            </div>
+            
+            <div id="countdownContainer" class="mt-3 hidden flex items-center gap-2 text-emerald-400 text-sm font-bold">
+                <i data-lucide="timer" class="w-4 h-4 animate-spin-slow"></i>
+                <span>Prossimo ciclo tra: <span id="agentCountdown">00:00:00</span></span>
+            </div>
         </div>
 
-        <div class="glass-panel rounded-2xl p-6">
-            <div class="flex justify-between mb-4">
-                <h2 class="text-xl font-bold">Manoscritto (Target: >30.000 parole)</h2>
-                <button id="btnWriteBook" onclick="triggerManualWrite()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-bold">SCRIVI CAPITOLO PER CAPITOLO</button>
+        <div class="glass-panel rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full">
+                    <label class="block text-xs font-bold text-amber-400 uppercase tracking-wider mb-2"><i data-lucide="lightbulb" class="inline w-4 h-4 mr-1 pb-1"></i> 1. Input Manuale</label>
+                    <input type="text" id="rawIdea" placeholder="Lascia vuoto per far scegliere all'AI, oppure inserisci un macro-argomento..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-5 py-4 text-white text-lg focus:outline-none focus:border-amber-500 transition-colors shadow-inner placeholder-slate-600">
+                </div>
+                <button id="btnGenerateBlueprint" onclick="triggerManualBlueprint()" class="btn-gold py-4 px-8 rounded-xl flex items-center justify-center gap-2 w-full md:w-auto shrink-0">
+                    <i data-lucide="cpu" class="w-5 h-5"></i> Genera Blueprint
+                </button>
             </div>
-            <div id="writingLoader" class="loader-bar mb-4"><div id="writingProgress" class="loader-progress"></div></div>
-            <textarea id="manuscriptContent" rows="20" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-6 text-slate-200 focus:outline-none"></textarea>
-            <p id="wordCount" class="text-sm text-slate-400 mt-2">0 parole</p>
+            <div id="blueprintLoader" class="loader-bar mt-4"><div class="loader-progress w-full animate-[pulse_1s_ease-in-out_infinite]"></div></div>
+            <p id="blueprintStatus" class="text-xs text-slate-400 mt-2 hidden text-center md:text-left">Analisi mercato in corso...</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
+                    <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2 border-b border-slate-700 pb-2">
+                        <i data-lucide="target" class="text-amber-500 w-5 h-5"></i> Metadati Algoritmo
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Titolo Ottimizzato</label>
+                            <input type="text" id="bookTitle" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Sottotitolo (Hook)</label>
+                            <textarea id="bookSubtitle" rows="2" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500 resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Autore Pen-Name</label>
+                            <input type="text" id="bookAuthor" value="Alessandra Ferrari" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2 border-b border-slate-700 pb-2">
+                        <i data-lucide="key" class="text-amber-500 w-5 h-5"></i> Le 7 Keyword d'Oro
+                    </h2>
+                    <ul id="keywordsList" class="space-y-2 text-sm text-slate-300">
+                        <li class="text-slate-500 italic text-xs">In attesa del blueprint...</li>
+                    </ul>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-lg font-bold mb-4 text-white flex items-center gap-2 border-b border-slate-700 pb-2">
+                        <i data-lucide="folder-tree" class="text-amber-500 w-5 h-5"></i> Le 3 Categorie
+                    </h2>
+                    <ul id="categoriesList" class="space-y-2 text-sm text-amber-200/80">
+                        <li class="text-slate-500 italic text-xs">In attesa del blueprint...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="list-ordered" class="text-blue-400 w-5 h-5"></i> Sommario & Scrittura (Target: 100+ Pag)
+                        </h2>
+                        <button id="btnWriteBook" onclick="triggerManualWrite()" disabled class="w-full sm:w-auto bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-500/20">
+                            <i data-lucide="pen-tool" class="w-4 h-4"></i> Forza Scrittura Manuale
+                        </button>
+                    </div>
+                    
+                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-4 h-48 overflow-y-auto" id="tocContainer">
+                        <p class="text-slate-500 italic text-sm text-center mt-16">Il sommario apparirà qui.</p>
+                        <ul id="tocList" class="list-decimal list-inside space-y-1 text-sm text-slate-300 hidden"></ul>
+                    </div>
+
+                    <div id="writingLoader" class="loader-bar mb-2"><div id="writingProgress" class="loader-progress w-0 bg-blue-500"></div></div>
+                    <p id="writingStatus" class="text-xs text-blue-400 font-mono hidden">In attesa...</p>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 shadow-xl relative">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4 border-b border-slate-700 pb-2">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="file-text" class="text-amber-500 w-5 h-5"></i> Manoscritto & Editor
+                        </h2>
+                        
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <div class="bg-slate-800 rounded-lg p-1.5 flex items-center border border-slate-600 w-full">
+                                <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 whitespace-nowrap"><i data-lucide="layout" class="w-3 h-3 inline mr-1 mb-0.5"></i> Stile Rendering:</label>
+                                <select id="bookStyle" onchange="updateEditorStyle()" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer text-sm w-full">
+                                    <option value="saggistica" class="bg-slate-800">Saggistica Pratica</option>
+                                    <option value="romanzo" class="bg-slate-800">Romanzo / Narrativa</option>
+                                    <option value="manuale" class="bg-slate-800">Manuale Tecnico</option>
+                                </select>
+                            </div>
+                            <span class="text-xs font-mono bg-slate-800 px-2 py-1.5 rounded text-amber-400 border border-slate-700 whitespace-nowrap" id="wordCount">0 par.</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Testo Quarta di Copertina</label>
+                        <textarea id="backCoverText" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm focus:border-amber-500 transition-colors resize-y placeholder-slate-700"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1 flex justify-between">
+                            <span>Contenuto Libro (Live Preview)</span>
+                            <span class="text-emerald-500 font-normal lowercase tracking-normal">Supporta tag [IMG:url] per impaginazione</span>
+                        </label>
+                        <textarea id="manuscriptContent" rows="15" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-6 py-6 text-slate-200 focus:outline-none focus:border-amber-500 transition-all resize-y style-saggistica" placeholder="Il contenuto del libro apparirà qui in capitoli estesi..."></textarea>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i data-lucide="layout-template" class="text-emerald-400 w-5 h-5"></i> Contenuti A+ (Moduli Grafici e Copy)
+                        </h2>
+                        <button id="btnGenerateAPlus" onclick="triggerManualAPlus()" disabled class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-emerald-500/20">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Forza A+ Manuale
+                        </button>
+                    </div>
+                    <div>
+                        <textarea id="aPlusContent" rows="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-5 py-4 text-emerald-100 text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-y leading-relaxed mb-4" placeholder="I testi persuasivi per i tuoi moduli A+ appariranno qui..."></textarea>
+                        <div id="aPlusImagesContainer" class="hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl mt-8 border-t-4 border-t-amber-500">
+            <h2 class="text-2xl font-bold mb-2 text-white text-center">Export File KDP</h2>
+            <p class="text-center text-slate-400 text-sm mb-6">Il PDF dell'interno calcolerà le 100+ pagine e impaginerà testo e illustrazioni automaticamente.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
+                
+                <div class="md:col-span-4 flex flex-col md:flex-row items-center gap-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                    <div class="flex-shrink-0 w-32 h-48 bg-slate-900 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden shadow-lg relative">
+                        <i data-lucide="image" class="w-8 h-8 text-slate-700 absolute z-0"></i>
+                        <img id="aiCoverPreview" crossOrigin="Anonymous" src="" class="w-full h-full object-cover relative z-10 hidden" alt="Cover Preview">
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 text-amber-500 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina (Higgsfield/Pollinations)
+                        </label>
+                        <p class="text-xs text-slate-400 mb-2">L'AI ha scritto questo prompt analizzando la copertina più venduta della tua nicchia.</p>
+                        <textarea id="aiCoverPrompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 text-xs focus:border-amber-500 transition-colors resize-none mb-3" placeholder="Il prompt dell'immagine generato dall'AI apparirà qui..."></textarea>
+                        <button onclick="refreshCoverImage()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center gap-2 shadow">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rigenera Immagine Copertina
+                        </button>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                    <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
+                        <i data-lucide="book-open" class="text-slate-300"></i>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase">Pagine Stimate (Calcolo Dorso)</label>
+                        <div class="flex items-center gap-2 mt-1">
+                            <input type="number" id="pageCount" value="120" min="24" max="800" class="w-24 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-white font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                    <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
+                        <i data-lucide="palette" class="text-slate-300"></i>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Colori Base Copertina</label>
+                        <div class="flex h-8 gap-2 w-full">
+                            <input type="color" id="coverColor" value="#0f172a" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
+                            <input type="color" id="textColor" value="#fbbf24" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <button onclick="generateKindle()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-colors border border-slate-500 flex items-center justify-center gap-2 group">
+                    <i data-lucide="tablet" class="w-5 h-5 group-hover:text-blue-400 transition-colors"></i> eBook HTML
+                </button>
+                <button id="btnInterior" onclick="generateInteriorAsync()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-colors border border-slate-500 flex items-center justify-center gap-2 group">
+                    <i id="interiorIcon" data-lucide="file-text" class="w-5 h-5 group-hover:text-amber-400 transition-colors"></i> <span id="interiorBtnText">Interno PDF HD</span>
+                </button>
+                <button onclick="generateCover()" class="flex-1 btn-gold py-4 px-6 rounded-xl flex items-center justify-center gap-2">
+                    <i data-lucide="image" class="w-5 h-5"></i> Cover PDF HD
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="messageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
+        <div class="bg-slate-800 border border-slate-600 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform" id="modalContent">
+            <h3 id="modalTitle" class="text-xl font-bold mb-2 text-white flex items-center gap-2">Notifica</h3>
+            <p id="modalText" class="text-slate-300 mb-6 text-sm"></p>
+            <button onclick="closeModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">Chiudi</button>
         </div>
     </div>
 
     <script>
+        window.jsPDF = window.jspdf.jsPDF;
         lucide.createIcons();
-        let generatedTOC = ["Introduzione", "Capitolo 1", "Capitolo 2", "Capitolo 3", "Capitolo 4", "Capitolo 5", "Capitolo 6", "Capitolo 7", "Capitolo 8", "Conclusione"];
+
+        let generatedTOC = [];
+        let generatedKeywords = [];
+        let generatedCategories = [];
         let isWriting = false;
+        let agentActive = false;
+        let countdownTimer = null;
+
+        function showModal(title, text, iconColor = "text-amber-500") {
+            if(agentActive) return;
+            document.getElementById('modalTitle').innerHTML = `<i data-lucide="info" class="${iconColor} w-6 h-6"></i> ${title}`;
+            document.getElementById('modalText').innerText = text;
+            const modal = document.getElementById('messageModal');
+            const content = document.getElementById('modalContent');
+            lucide.createIcons();
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('messageModal');
+            const content = document.getElementById('modalContent');
+            modal.classList.add('opacity-0'); content.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        }
+
+        function updateEditorStyle() {
+            const style = document.getElementById('bookStyle').value;
+            const editor = document.getElementById('manuscriptContent');
+            editor.classList.remove('style-saggistica', 'style-romanzo', 'style-manuale');
+            editor.classList.add(`style-${style}`);
+            if(!agentActive) logAgent(`Stile visivo aggiornato: ${style.toUpperCase()}`);
+        }
+
+        // FETCH IMMAGINI
+        async function fetchImageWithFallback(promptText, width, height) {
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'image', prompt: promptText, width, height })
+                });
+                if (!response.ok) throw new Error("API Image Error");
+                const data = await response.json();
+                if (data.url) return data.url;
+                throw new Error("Nessun URL ritornato dall'API.");
+            } catch(e) {
+                console.warn("Fallback su Pollinations attivato.");
+                const seed = Math.floor(Math.random() * 1000000); 
+                return `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=${width}&height=${height}&nologo=true&seed=${seed}`;
+            }
+        }
+
+        async function refreshCoverImage() {
+            const promptText = document.getElementById('aiCoverPrompt').value;
+            if(!promptText) return;
+            const img = document.getElementById('aiCoverPreview');
+            img.classList.remove('hidden');
+            img.src = await fetchImageWithFallback(promptText, 600, 900);
+        }
+
+        function loadImageForPdf(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => resolve(img);
+                img.onerror = () => resolve(null);
+                img.src = url;
+            });
+        }
+
+        // CHIAMATA API DI TESTO
+        async function fetchAIWithRetry(prompt, schema = null, retries = 3, customSystemInstruction = null) {
+            const provider = document.getElementById('aiProvider').value;
+            const genLang = document.getElementById('genLang').value;
+            const defaultSys = `Sei un esperto copywriter e self-publisher su Amazon KDP. Crea asset editoriali altamente profittevoli, orientati alla conversione e SEO-optimized. Rispondi SEMPRE in ${genLang}.`;
+            const systemText = customSystemInstruction || defaultSys;
+
+            let delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ provider, prompt, schema, systemText })
+                    });
+                    
+                    if (!response.ok) throw new Error(`Server API Error: ${response.status}`);
+                    const data = await response.json();
+                    return schema ? data : data.text;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
 
         function logAgent(msg) {
             const terminal = document.getElementById('agentLogOutput');
-            terminal.innerHTML += `<p>> [${new Date().toLocaleTimeString()}] ${msg}</p>`;
-            document.getElementById('agentConsole').scrollTop = 99999;
+            const time = new Date().toLocaleTimeString();
+            terminal.innerHTML += `<p>> [${time}] ${msg}</p>`;
+            const consoleDiv = document.getElementById('agentConsole');
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
         }
 
-        async function fetchAIWithRetry(prompt, systemInstruction = "Sei un autore professionista di libri KDP. Scrivi contenuti lunghi, dettagliati e coinvolgenti.") {
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ provider: 'openrouter', prompt, systemText: systemInstruction })
-            });
-            if (!response.ok) throw new Error("Errore API");
-            const data = await response.json();
-            return data.text;
+        // GESTIONE AUTOPILOTA
+        function toggleAgent() {
+            const btn = document.getElementById('btnToggleAgent');
+            const btnText = document.getElementById('agentBtnText');
+            
+            if (agentActive) {
+                agentActive = false;
+                btn.classList.remove('active');
+                btnText.innerText = "ATTIVA AUTOPILOTA";
+                logAgent("🔴 Protocollo Agentico disattivato.");
+                if(countdownTimer) clearInterval(countdownTimer);
+                document.getElementById('countdownContainer').classList.add('hidden');
+            } else {
+                agentActive = true;
+                btn.classList.add('active');
+                btnText.innerText = "FERMA AUTOPILOTA";
+                logAgent(`🟢 Inizializzazione Protocollo Agentico (Target 100 Pagine)...`);
+                runAgentCycle();
+            }
+        }
+
+        async function runAgentCycle() {
+            if (!agentActive) return;
+            document.getElementById('countdownContainer').classList.add('hidden');
+
+            try {
+                logAgent("Avvio Data Mining profittevole...");
+                const idea = await agenticMarketResearch();
+                document.getElementById('rawIdea').value = idea;
+                logAgent(`Trovata nicchia ad alta conversione: "${idea}"`);
+
+                logAgent("Generazione Blueprint KDP e metadati SEO...");
+                await generateBlueprintCore(idea);
+                logAgent("Blueprint completato.");
+
+                logAgent("Avvio orchestrazione lato client per stesura manoscritto (10+ capitoli estesi)...");
+                await generateFullBookCore();
+                logAgent("Manoscritto di volume completato con successo.");
+
+                logAgent("Generazione layout A+ Content persuasivi...");
+                await generateAPlusCore();
+                logAgent("A+ Generato.");
+
+                logAgent("Compilazione ed esportazione file HD...");
+                await new Promise(res => setTimeout(res, 3000));
+                
+                generateKindle(); 
+                await generateInteriorAsync(); 
+                generateCover();
+                logAgent("File scaricati. Libro pronto per l'upload su Amazon KDP.");
+
+                startCountdownForNextBook();
+
+            } catch (error) {
+                logAgent(`❌ ERRORE CRITICO DURANTE IL CICLO: ${error.message}`);
+                logAgent("L'agente riproverà nel prossimo ciclo attivando le reti di Fallback.");
+                startCountdownForNextBook();
+            }
+        }
+
+        async function agenticMarketResearch() {
+            const genLang = document.getElementById('genLang').value;
+            const systemPrompt = `Sei un agente AI analitico e spietato specializzato nel data-mining per Amazon KDP. Il tuo unico scopo è analizzare i trend ad alto BSR (Best Sellers Rank) e bassa competizione per identificare una nicchia altamente profittevole. Rispondi SOLO con l'argomento in 1 breve frase nella lingua ${genLang}. Nessuna spiegazione.`;
+            const prompt = "Genera un'idea di libro altamente profittevole (Blue Ocean) per il mercato di oggi.";
+            const response = await fetchAIWithRetry(prompt, null, 3, systemPrompt);
+            return response.trim().replace(/["']/g, ""); 
+        }
+
+        function startCountdownForNextBook() {
+            if (!agentActive) return;
+            const isDemo = document.getElementById('demoMode').checked;
+            let secondsLeft = isDemo ? 60 : 86400;
+
+            logAgent(`Ciclo terminato. L'Agente entra in ibernazione. Prossima esecuzione tra ${isDemo ? '60 secondi' : '24 ore'}.`);
+            document.getElementById('countdownContainer').classList.remove('hidden');
+            const display = document.getElementById('agentCountdown');
+
+            countdownTimer = setInterval(() => {
+                if (!agentActive) { clearInterval(countdownTimer); return; }
+                secondsLeft--;
+                let h = Math.floor(secondsLeft / 3600);
+                let m = Math.floor((secondsLeft % 3600) / 60);
+                let s = secondsLeft % 60;
+                display.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    logAgent("Risveglio dell'Agente. Avvio nuovo ciclo produttivo...");
+                    runAgentCycle();
+                }
+            }, 1000);
+        }
+
+        // GENERAZIONE BLUEPRINT CON PARSING JSON SICURO
+        async function triggerManualBlueprint() {
+            const idea = document.getElementById('rawIdea').value.trim();
+            if (!idea) return showModal("Attenzione", "Inserisci un'idea prima.", "text-red-500");
+            await generateBlueprintCore(idea);
+            showModal("Blueprint Completato", "Struttura creata. Clicca su 'Forza Scrittura Manuale' per avviare il loop.", "text-emerald-500");
+        }
+
+        async function generateBlueprintCore(ideaText) {
+            const genLang = document.getElementById('genLang').value;
+            const btn = document.getElementById('btnGenerateBlueprint');
+            const loader = document.getElementById('blueprintLoader');
+            const status = document.getElementById('blueprintStatus');
+            
+            btn.disabled = true; loader.classList.add('active'); status.classList.remove('hidden');
+
+            const prompt = `Crea un blueprint profittevole mirato al mercato ${genLang} per: "${ideaText}".
+            Rispondi ESCLUSIVAMENTE in formato JSON (senza testo prima o dopo) con questo esatto schema:
+            {
+                "title": "Titolo magnetico",
+                "subtitle": "Sottotitolo SEO con beneficio",
+                "keywords": ["7 long-tail keywords esatte, bassa competizione"],
+                "categories": ["3 categorie Amazon specifiche"],
+                "back_cover": "Testo persuasivo AIDA per la quarta di copertina",
+                "toc": ["Introduzione", "Capitolo 1...", ... "Conclusione" (esattamente 12 voci per garantire volume)],
+                "book_style": "saggistica",
+                "cover_prompt": "Prompt in INGLESE per Midjourney/AI descrivendo una copertina premium, zero testo"
+            }`;
+
+            try {
+                const response = await fetchAIWithRetry(prompt, null);
+                const cleanJson = response.replace(/```json/g, '').replace(/```/g, '').trim();
+                const result = JSON.parse(cleanJson);
+                
+                document.getElementById('bookTitle').value = result.title;
+                document.getElementById('bookSubtitle').value = result.subtitle;
+                document.getElementById('backCoverText').value = result.back_cover;
+                
+                const styleSelect = document.getElementById('bookStyle');
+                const styleValue = result.book_style ? result.book_style.toLowerCase() : 'saggistica';
+                if(['saggistica', 'romanzo', 'manuale'].includes(styleValue)) {
+                    styleSelect.value = styleValue;
+                } else {
+                    styleSelect.value = 'saggistica';
+                }
+                updateEditorStyle();
+
+                document.getElementById('aiCoverPrompt').value = result.cover_prompt;
+                refreshCoverImage(); 
+                
+                generatedKeywords = result.keywords;
+                generatedCategories = result.categories;
+                renderKeywordsAndCategories();
+                
+                generatedTOC = result.toc;
+                renderTOC();
+                
+                document.getElementById('btnWriteBook').disabled = false;
+                document.getElementById('btnGenerateAPlus').disabled = false;
+            } catch (e) {
+                console.error("Errore Parsing JSON Blueprint:", e);
+                showModal("Errore", "L'AI ha formattato male il JSON. Riprova.", "text-red-500");
+            } finally {
+                btn.disabled = false; loader.classList.remove('active'); status.classList.add('hidden');
+            }
+        }
+
+        // GENERAZIONE MANOSCRITTO (LATO CLIENT - NO TIMEOUT)
+        async function triggerManualWrite() {
+            if (generatedTOC.length === 0) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
+            await generateFullBookCore();
+            showModal("Libro Completato", "Il manoscritto lungo e i tag immagine sono pronti. Puoi esportarlo in PDF.", "text-emerald-500");
         }
 
         async function generateFullBookCore() {
             if (isWriting) return;
+            const title = document.getElementById('bookTitle').value;
             const msTextarea = document.getElementById('manuscriptContent');
-            const progress = document.getElementById('writingProgress');
             const btn = document.getElementById('btnWriteBook');
             const loader = document.getElementById('writingLoader');
+            const progress = document.getElementById('writingProgress');
+            const status = document.getElementById('writingStatus');
+            const illusMode = document.getElementById('illusMode').value;
+            const style = document.getElementById('bookStyle').value;
             
-            isWriting = true; btn.disabled = true; loader.classList.add('active');
+            isWriting = true; btn.disabled = true;
             msTextarea.value = ""; 
+            loader.classList.add('active'); status.classList.remove('hidden');
 
-            for (let i = 0; i < generatedTOC.length; i++) {
-                const chapter = generatedTOC[i];
-                logAgent(`Scrittura: ${chapter}...`);
-                progress.style.width = `${((i) / generatedTOC.length) * 100}%`;
+            try {
+                // Loop lato client: previene il timeout del serverlessly
+                for (let i = 0; i < generatedTOC.length; i++) {
+                    const chapterTitle = generatedTOC[i];
+                    status.innerText = `[${i+1}/${generatedTOC.length}] Espansione profonda: ${chapterTitle}...`;
+                    progress.style.width = `${((i) / generatedTOC.length) * 100}%`;
 
-                // PROMPT "PROFITTEVOLE": 3000+ parole per capitolo per garantire volume
-                const prompt = `Scrivi il capitolo "${chapter}" per un libro KDP. 
-                Sii estremamente dettagliato, usa sottoparagrafi, esempi pratici e un tono professionale. 
-                Obiettivo: scrivi almeno 3000 parole per questo singolo capitolo. 
-                Non riassumere, espandi ogni concetto.`;
+                    // Prompt orientato alla massima generazione e profittabilità
+                    const prompt = `Stai scrivendo il libro best-seller "${title}". 
+                    Scrivi ESCLUSIVAMENTE e integralmente il capitolo: "${chapterTitle}".
+                    REGOLE TASSATIVE PER MASSIMIZZARE IL VALORE KDP:
+                    1. ESTREMA LUNGHEZZA: Obiettivo minimo 2500 - 3000 parole. Non fare riassunti.
+                    2. STRUTTURA: Usa paragrafi, elenchi puntati, casi studio e consigli pratici.
+                    3. FORMATTAZIONE: Inizia con il titolo del capitolo su una riga, una riga vuota, e poi il testo. Non usare mai markdown complessi come asterischi ** o ##.
+                    4. ENGAGEMENT: Mantieni alta l'attenzione del lettore.`;
 
-                try {
-                    const content = await fetchAIWithRetry(prompt);
-                    msTextarea.value += `\n\n# ${chapter}\n\n${content}\n\n---\n\n`;
+                    let chapterContent = "";
+                    try {
+                        chapterContent = await fetchAIWithRetry(prompt);
+                    } catch(err) {
+                        logAgent(`Timeout sul capitolo ${chapterTitle}. Riprovo...`);
+                        i--; // Retry
+                        continue;
+                    }
+                    
+                    let cleanText = chapterContent.replace(/\*\*/g, '').replace(/#/g, '');
+                    
+                    let imgTag = "";
+                    if (illusMode !== 'none') {
+                        let colorMod = illusMode === 'bw' ? "black and white ink illustration, clean white background, high contrast, elegant" : "full color illustration, vibrant, detailed";
+                        let imgPrompt = `book illustration about ${chapterTitle}, ${style} aesthetic, ${colorMod}, no text`;
+                        let promptUrl = await fetchImageWithFallback(imgPrompt, 800, 600);
+                        imgTag = `\n[IMG:${promptUrl}]\n\n`;
+                    }
+                    
+                    msTextarea.value += "\n" + chapterTitle + "\n" + imgTag + cleanText.replace(chapterTitle, '').trim() + "\n\n---\n\n";
+                    msTextarea.scrollTop = msTextarea.scrollHeight; 
                     updateWordCount();
-                } catch(e) {
-                    logAgent(`❌ Errore al ${chapter}, riprovo...`);
-                    i--; // Riprova il capitolo
+                    
+                    // Pausa per rispettare eventuali rate-limit delle API gratuite
+                    await new Promise(r => setTimeout(r, 2000)); 
                 }
+                progress.style.width = `100%`;
+                status.innerText = "Manoscritto massivo completato!";
+                document.getElementById('pageCount').value = Math.max(120, Math.floor(parseInt(document.getElementById('wordCount').innerText) / 250));
+            } finally {
+                isWriting = false; btn.disabled = false;
+                setTimeout(() => { loader.classList.remove('active'); }, 2000);
             }
-            progress.style.width = `100%`;
-            loader.classList.remove('active');
-            isWriting = false; btn.disabled = false;
-            logAgent("Libro completato: >30.000 parole generate.");
         }
 
+        async function triggerManualAPlus() {
+            const title = document.getElementById('bookTitle').value;
+            if (!title) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
+            await generateAPlusCore();
+            showModal("Contenuti A+", "Testi persuasivi e grafiche A+ generati.", "text-emerald-500");
+        }
+
+        async function generateAPlusCore() {
+            const title = document.getElementById('bookTitle').value;
+            const subtitle = document.getElementById('bookSubtitle').value;
+            const genLang = document.getElementById('genLang').value;
+            const btn = document.getElementById('btnGenerateAPlus');
+            const aPlusTextarea = document.getElementById('aPlusContent');
+            const aPlusImagesContainer = document.getElementById('aPlusImagesContainer');
+            
+            btn.disabled = true;
+            aPlusTextarea.value = "Generazione Moduli di Conversione A+ in corso...";
+
+            const prompt = `Sei un copywriter di Amazon KDP specializzato in conversion rate. Scrivi i testi per l'A+ Content del libro "${title}" - "${subtitle}" in lingua ${genLang}.
+            MODULO 1: Hook emozionale potente (2 righe).
+            MODULO 2: 3 Bullet Point trasformativi sui benefici del libro.
+            MODULO 3: Urgenza e forte Call To Action per spingere all'acquisto immediato.
+            Niente markdown.`;
+
+            try {
+                const responseText = await fetchAIWithRetry(prompt);
+                aPlusTextarea.value = responseText.replace(/\*\*/g, ''); 
+                
+                const [headerUrl, icon1, icon2, icon3] = await Promise.all([
+                    fetchImageWithFallback(`A+ Content Header banner graphic for a book about ${title}, high converting, premium design, no text`, 970, 600),
+                    fetchImageWithFallback(`icon illustration concept 1 for book ${title}, clean background, no text`, 300, 300),
+                    fetchImageWithFallback(`icon illustration concept 2 for book ${title}, clean background, no text`, 300, 300),
+                    fetchImageWithFallback(`icon illustration concept 3 for book ${title}, clean background, no text`, 300, 300)
+                ]);
+
+                aPlusImagesContainer.classList.remove('hidden');
+                aPlusImagesContainer.innerHTML = `
+                    <div class="space-y-4 border-t border-slate-700 pt-4 mt-2">
+                        <div>
+                            <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Banner Header A+ (970x600)</p>
+                            <img src="${headerUrl}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Header">
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2">Moduli Quadrati (300x300)</p>
+                            <div class="grid grid-cols-3 gap-4">
+                                <img src="${icon1}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Icon 1">
+                                <img src="${icon2}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Icon 2">
+                                <img src="${icon3}" class="w-full rounded-lg border border-slate-600 shadow" alt="A+ Icon 3">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function renderKeywordsAndCategories() {
+            document.getElementById('keywordsList').innerHTML = generatedKeywords.map(kw => `<li class="flex items-start gap-2"><i data-lucide="search" class="w-3 h-3 mt-1 shrink-0 text-slate-500"></i> <span>${kw}</span></li>`).join('');
+            document.getElementById('categoriesList').innerHTML = generatedCategories.map(cat => `<li class="flex items-start gap-2"><i data-lucide="chevron-right" class="w-3 h-3 mt-1 shrink-0 text-amber-500"></i> <span>${cat}</span></li>`).join('');
+            lucide.createIcons();
+        }
+
+        function renderTOC() {
+            const tocList = document.getElementById('tocList');
+            document.getElementById('tocContainer').querySelector('p').classList.add('hidden');
+            tocList.classList.remove('hidden');
+            tocList.innerHTML = generatedTOC.map(ch => `<li class="py-1 border-b border-slate-800 last:border-0">${ch}</li>`).join('');
+        }
+
+        document.getElementById('manuscriptContent').addEventListener('input', updateWordCount);
         function updateWordCount() {
             const text = document.getElementById('manuscriptContent').value;
             const count = text.trim().split(/\s+/).filter(w => w.length > 0).length;
             document.getElementById('wordCount').innerText = `${count} parole`;
         }
 
-        function triggerManualWrite() { generateFullBookCore(); }
+        // MOTORI DI ESPORTAZIONE KDP
+        function generateKindle() {
+            const title = document.getElementById('bookTitle').value || "Senza Titolo";
+            const author = document.getElementById('bookAuthor').value || "Autore Sconosciuto";
+            const content = document.getElementById('manuscriptContent').value;
+            if(!content.trim()) return;
+
+            let htmlContent = `<!DOCTYPE html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<title>${title}</title>\n<style>\nbody { font-family: serif; line-height: 1.6; margin: 5%; }\nh1 { text-align: center; margin-top: 2em; margin-bottom: 1em; page-break-before: always; }\nh2 { text-align: center; font-weight: normal; margin-bottom: 3em; }\np { text-indent: 1.5em; margin-bottom: 0.5em; text-align: justify; }\n.center { text-align: center; text-indent: 0; }\nimg { max-width: 100%; height: auto; display: block; margin: 1em auto; }\n</style>\n</head>\n<body>\n<h1 style="page-break-before: avoid;">${title}</h1>\n<h2>di ${author}</h2>\n<div class="center" style="margin-top: 4em; font-size: 0.8em;">\n<p>Copyright © ${new Date().getFullYear()} ${author}. Tutti i diritti riservati.</p>\n</div>\n`;
+
+            const paragraphs = content.split('\n');
+            for (let i = 0; i < paragraphs.length; i++) {
+                let para = paragraphs[i].trim();
+                if (para === "" || para === "---") continue;
+                
+                if (para.startsWith("[IMG:") && para.endsWith("]")) {
+                    let url = para.substring(5, para.length - 1);
+                    htmlContent += `<img src="${url}" alt="Illustrazione">\n`;
+                    continue;
+                }
+
+                let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.match(/^[0-9]+\./) || generatedTOC.includes(para);
+                if (isChapterTitle) { htmlContent += `\n<h1>${para}</h1>\n`; } else { htmlContent += `<p>${para}</p>\n`; }
+            }
+            htmlContent += `</body></html>`;
+            downloadFile(htmlContent, 'text/html;charset=utf-8', `${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Kindle.html`);
+        }
+
+        const PAGE_WIDTH = 6;
+        const PAGE_HEIGHT = 9;
+        
+        async function generateInteriorAsync() {
+            const btn = document.getElementById('btnInterior');
+            const btnText = document.getElementById('interiorBtnText');
+            const icon = document.getElementById('interiorIcon');
+            const title = document.getElementById('bookTitle').value || "Senza Titolo";
+            const author = document.getElementById('bookAuthor').value || "Autore Sconosciuto";
+            const content = document.getElementById('manuscriptContent').value;
+            const style = document.getElementById('bookStyle').value; 
+            
+            if(!content.trim()) return;
+
+            btn.disabled = true; btnText.innerText = "Creazione PDF (Attendere)...";
+            icon.setAttribute('data-lucide', 'loader'); icon.classList.add('animate-spin');
+            lucide.createIcons();
+
+            try {
+                const doc = new jsPDF({ orientation: "portrait", unit: "in", format: [PAGE_WIDTH, PAGE_HEIGHT] });
+                
+                let fontTitle = "helvetica"; let fontBody = "times"; let lineSpacingBody = 0.22; let titleSize = 16; let bodySize = 11;
+                if (style === "romanzo") { fontTitle = "times"; fontBody = "times"; lineSpacingBody = 0.25; titleSize = 18; bodySize = 12; } 
+                else if (style === "manuale") { fontTitle = "helvetica"; fontBody = "helvetica"; lineSpacingBody = 0.20; titleSize = 16; bodySize = 10; }
+
+                doc.setFont(fontTitle, "bold"); doc.setFontSize(24);
+                const titleLines = doc.splitTextToSize(title, PAGE_WIDTH - 2);
+                doc.text(titleLines, PAGE_WIDTH / 2, 3, { align: "center" });
+                
+                doc.setFont(fontTitle, "normal"); doc.setFontSize(14);
+                doc.text(author, PAGE_WIDTH / 2, 4 + (titleLines.length * 0.4), { align: "center" });
+                
+                doc.addPage();
+                doc.setFont(fontBody, "normal"); doc.setFontSize(10);
+                doc.text(`Copyright © ${new Date().getFullYear()} ${author}`, 0.75, 8);
+                doc.text("Tutti i diritti riservati.", 0.75, 8.2);
+
+                doc.addPage();
+                const marginLeft = 0.75; const marginTop = 0.75; const maxWidth = PAGE_WIDTH - marginLeft - 0.75;
+                const paragraphs = content.split('\n');
+                let cursorY = marginTop; let pageNum = 1;
+
+                const printPageNumber = () => { doc.setFont(fontBody, "normal"); doc.setFontSize(9); doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); };
+
+                for (let i = 0; i < paragraphs.length; i++) {
+                    let para = paragraphs[i].trim();
+                    if (para === "" || para === "---") continue;
+
+                    if (para.startsWith("[IMG:") && para.endsWith("]")) {
+                        let url = para.substring(5, para.length - 1);
+                        let img = await loadImageForPdf(url);
+                        if (img) {
+                            let maxW = maxWidth; let maxH = (PAGE_HEIGHT / 2.5); 
+                            let ratio = Math.min(maxW / img.width, maxH / img.height);
+                            let w = img.width * ratio; let h = img.height * ratio;
+
+                            if (cursorY + h > PAGE_HEIGHT - 1) { printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++; }
+                            doc.addImage(img, "JPEG", (PAGE_WIDTH - w)/2, cursorY, w, h);
+                            cursorY += h + 0.3;
+                        }
+                        continue;
+                    }
+
+                    let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.match(/^[0-9]+\./) || generatedTOC.includes(para);
+
+                    if (isChapterTitle) {
+                        if (cursorY > marginTop + 0.5) { printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++; }
+                        doc.setFont(fontTitle, "bold"); doc.setFontSize(titleSize); cursorY += 0.5; 
+                    } else {
+                        doc.setFont(fontBody, "normal"); doc.setFontSize(bodySize);
+                    }
+
+                    const lines = doc.splitTextToSize(para, maxWidth);
+                    for (let j = 0; j < lines.length; j++) {
+                        if (cursorY > (PAGE_HEIGHT - 0.75)) {
+                            printPageNumber(); doc.addPage(); cursorY = marginTop; pageNum++;
+                            if(isChapterTitle) { doc.setFont(fontTitle, "bold").setFontSize(titleSize); }
+                            else { doc.setFont(fontBody, "normal").setFontSize(bodySize); }
+                        }
+                        doc.text(lines[j], marginLeft, cursorY);
+                        cursorY += isChapterTitle ? 0.35 : lineSpacingBody;
+                    }
+                    cursorY += 0.15; 
+                }
+                printPageNumber();
+                doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Interior.pdf`);
+            } finally {
+                btn.disabled = false; btnText.innerText = "Interno PDF HD";
+                icon.setAttribute('data-lucide', 'file-text'); icon.classList.remove('animate-spin');
+                lucide.createIcons();
+            }
+        }
+
+        function generateCover() {
+            const title = document.getElementById('bookTitle').value || "Titolo";
+            const subtitle = document.getElementById('bookSubtitle').value;
+            const author = document.getElementById('bookAuthor').value || "Autore";
+            const backText = document.getElementById('backCoverText').value;
+            const pages = parseInt(document.getElementById('pageCount').value) || 120;
+            const bgColor = document.getElementById('coverColor').value;
+            const txtColor = document.getElementById('textColor').value;
+
+            const bleed = 0.125;
+            const spineWidth = pages * 0.002252; 
+            const totalWidth = (PAGE_WIDTH + bleed) * 2 + spineWidth;
+            const totalHeight = PAGE_HEIGHT + (bleed * 2);
+
+            const doc = new jsPDF({ orientation: "landscape", unit: "in", format: [totalWidth, totalHeight] });
+            
+            doc.setFillColor(bgColor); doc.rect(0, 0, totalWidth, totalHeight, "F"); 
+            
+            const backCoverWidth = PAGE_WIDTH + bleed; const spineLeftX = backCoverWidth;
+            const spineCenterX = spineLeftX + (spineWidth / 2); const frontCoverLeftX = spineLeftX + spineWidth;
+            const frontCenterX = frontCoverLeftX + (PAGE_WIDTH / 2);
+
+            const imgElement = document.getElementById('aiCoverPreview');
+            if (imgElement && imgElement.complete && imgElement.src && !imgElement.classList.contains('hidden')) {
+                try { doc.addImage(imgElement, "JPEG", frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight); } catch(e) {}
+            }
+
+            doc.setTextColor(txtColor);
+            if (pages >= 79) {
+                doc.setFont("helvetica", "bold");
+                let spineFontSize = (spineWidth * 72) * 0.7; 
+                if (spineFontSize > 14) spineFontSize = 14;
+                doc.setFontSize(spineFontSize);
+                doc.text(`${author}        ${title}`, spineCenterX, totalHeight / 2, { angle: 270, align: "center", baseline: "middle" });
+            }
+
+            doc.setFont("helvetica", "bold");
+            let maxTitleSize = 65; doc.setFontSize(maxTitleSize);
+            let splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 0.5);
+            
+            while((splitTitle.length * (maxTitleSize/72)) > (PAGE_HEIGHT / 2.5) || doc.getTextWidth(splitTitle[0]) > PAGE_WIDTH - 0.2) {
+                maxTitleSize -= 5; doc.setFontSize(maxTitleSize);
+                splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 0.5);
+                if(maxTitleSize < 25) break;
+            }
+            
+            doc.setFillColor(bgColor);
+            const titleBoxHeight = (splitTitle.length * (maxTitleSize/72) * 1.2) + 0.5;
+            doc.rect(frontCoverLeftX, 0.7, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 0.8 : 0), "F");
+            
+            doc.setTextColor(txtColor); doc.text(splitTitle, frontCenterX, 1 + (maxTitleSize/72), { align: "center" });
+            
+            if(subtitle) {
+                doc.setFont("helvetica", "normal"); doc.setFontSize(14);
+                const splitSub = doc.splitTextToSize(subtitle, PAGE_WIDTH - 1.5);
+                doc.text(splitSub, frontCenterX, 1.2 + (titleBoxHeight) - 0.5, { align: "center" });
+            }
+            
+            doc.setFillColor(bgColor); doc.rect(frontCoverLeftX, totalHeight - 2.2, PAGE_WIDTH + bleed, 2.2, "F");
+            
+            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
+            doc.text(author, frontCenterX, totalHeight - 1.2, { align: "center" });
+            doc.setDrawColor(txtColor); doc.setLineWidth(0.05);
+            doc.line(frontCenterX - 1.5, totalHeight - 1.5, frontCenterX + 1.5, totalHeight - 1.5);
+
+            const backCenterX = (PAGE_WIDTH / 2) + (bleed / 2); doc.setFontSize(16);
+            const splitTitleBack = doc.splitTextToSize(title, PAGE_WIDTH - 1.5);
+            doc.text(splitTitleBack, backCenterX, 1.5, { align: "center" });
+            
+            doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+            const safeBackWidth = PAGE_WIDTH - 1.5; const splitBack = doc.splitTextToSize(backText, safeBackWidth);
+            doc.text(splitBack, backCenterX, 2.5 + (splitTitleBack.length * 0.2), { align: "center", maxWidth: safeBackWidth });
+
+            doc.setFillColor("#ffffff"); const barcodeWidth = 2; const barcodeHeight = 1.2;
+            doc.rect(spineLeftX - barcodeWidth - 0.25, totalHeight - barcodeHeight - 0.25 - bleed, barcodeWidth, barcodeHeight, "F");
+            doc.setFontSize(8); doc.setTextColor("#000000");
+            doc.text("Spazio Barcode KDP", spineLeftX - (barcodeWidth/2) - 0.25, totalHeight - (barcodeHeight/2) - 0.25 - bleed, { align: "center", baseline: "middle" });
+
+            doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Cover.pdf`);
+        }
+
+        function downloadFile(content, mimeType, filename) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob); const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
