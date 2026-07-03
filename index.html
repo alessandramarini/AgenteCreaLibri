@@ -52,7 +52,7 @@
                 <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 tracking-tight" style="font-family: 'Playfair Display', serif;">KDP COPILOT STUDIO</h1>
                 <p class="text-slate-400 mt-2 font-medium flex items-center gap-2 justify-center md:justify-start">
                     <span class="bg-blue-900/50 text-blue-400 px-2 py-0.5 rounded text-xs border border-blue-700/50">Bestseller Factory</span>
-                    Scrittura a Blocchi per Alta Qualità
+                    Scrittura a Blocchi per Alta Qualità (Anti-Timeout)
                 </p>
             </div>
             <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-center sm:justify-start">
@@ -67,8 +67,8 @@
                 <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
                     <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Lingua</label>
                     <select id="genLang" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm">
-                        <option value="Italiano" selected class="bg-slate-800">🇮🇹 Italiano</option>
-                        <option value="Inglese" class="bg-slate-800">🇬🇧 Inglese</option>
+                        <option value="Italiano" class="bg-slate-800">🇮🇹 Italiano</option>
+                        <option value="Inglese" selected class="bg-slate-800">🇬🇧 Inglese</option>
                         <option value="Spagnolo" class="bg-slate-800">🇪🇸 Spagnolo</option>
                     </select>
                 </div>
@@ -138,7 +138,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Autore Pen-Name</label>
-                            <input type="text" id="bookAuthor" value="Alessandra Ferrari" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
+                            <input type="text" id="bookAuthor" value="Alessandra Marini" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
                         </div>
                     </div>
                 </div>
@@ -154,6 +154,7 @@
             </div>
 
             <div class="lg:col-span-2 space-y-6">
+                <!-- PANNELLO COPILOT INTERATTIVO -->
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden border-2 border-blue-500/30">
                     <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
@@ -283,6 +284,7 @@
 
     </div>
 
+    <!-- Modale Notifiche -->
     <div id="messageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
         <div class="bg-slate-800 border border-slate-600 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform" id="modalContent">
             <h3 id="modalTitle" class="text-xl font-bold mb-2 text-white flex items-center gap-2">Notifica</h3>
@@ -398,6 +400,11 @@
                     const data = await response.json();
                     if(!data || !data.text) throw new Error("Nessun testo ritornato.");
                     
+                    const textLower = data.text.toLowerCase();
+                    if(textLower.includes("non posso") || textLower.includes("i cannot") || textLower.includes("i'm sorry")) {
+                        throw new Error("Rifiuto AI rilevato.");
+                    }
+
                     return schema ? data : data.text;
                 } catch (error) {
                     if (i === retries - 1) throw error;
@@ -484,7 +491,8 @@
             try {
                 const response = await fetchAIWithRetry(prompt, null);
                 
-                let cleanJson = response.replace(/```json/gi, '').replace(/```/g, '').trim();
+                let cleanJson = response.replace(/
+```json/gi, '').replace(/```/g, '').trim();
                 const start = cleanJson.indexOf('{');
                 const end = cleanJson.lastIndexOf('}');
                 
@@ -526,7 +534,7 @@
             }
         }
 
-        // --- KDP COPILOT: STUDIO INTERATTIVO (A BLOCCHI) ---
+        // --- KDP COPILOT: STUDIO INTERATTIVO (A BLOCCHI E ANTI-TIMEOUT) ---
         function renderTOC() {
             const container = document.getElementById('tocList');
             document.getElementById('tocContainer').querySelector('p').classList.add('hidden');
@@ -560,7 +568,7 @@
             const btn = document.getElementById(`btn-${chunkType}-${index}`);
             const originalText = btn.innerText;
             
-            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin inline"></i>...`;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin inline"></i> Generazione...`;
             btn.disabled = true;
             btn.classList.add('opacity-50');
             lucide.createIcons();
@@ -569,57 +577,67 @@
             const editor = document.getElementById('manuscriptContent');
             const genLang = document.getElementById('genLang').value;
             
-            // Creiamo un contesto "pulito" prendendo solo le ultime 100 parole dall'editor
+            // Creiamo un contesto "pulito" prendendo le ultime parole dall'editor per continuare il filo
             let context = "";
             let currentText = editor.value.trim();
             if (currentText.length > 0) {
                 let words = currentText.split(/\s+/);
-                let lastWords = words.slice(-100).join(' ');
-                // Rimuoviamo i tag IMG per non confondere l'AI
-                lastWords = lastWords.replace(/\[IMG:.*?\]/g, '');
-                context = `\n[Contesto per continuità: Il testo appena prima di questo blocco terminava così: "...${lastText}"]`;
+                let lastWords = words.slice(-150).join(' ');
+                lastWords = lastWords.replace(/\[IMG:.*?\]/g, ''); // Rimuove tag immagini
+                context = `\n\n[IMPORTANTE - CONTESTO: Il testo appena prima di questo blocco terminava così: "...${lastWords}". Continua il discorso in modo fluido da questo esatto punto, non ripetere l'introduzione.]`;
             }
 
             let prompt = "";
             
             if (chunkType === 'intro') {
                 prompt = `Scrivi l'introduzione per il capitolo intitolato "${chapterTitle}" del libro "${title}".
-                Usa il framework PAS: identifica il Problema del lettore, Agita il problema (rendilo sentito), e introduci come questo capitolo offrirà la Soluzione. 
-                Obiettivo: Circa 400 parole. Scrivi in ${genLang}. Inizia mettendo il titolo del capitolo su una riga, lascia una riga vuota, poi inizia il testo.`;
+                Usa il framework PAS: identifica il Problema del lettore, Agita il problema, e introduci la Soluzione. 
+                Obiettivo: Massimo 400 parole. Scrivi in ${genLang}. Inizia mettendo il titolo del capitolo su una riga, lascia una riga vuota, poi inizia il testo.`;
             } else if (chunkType === 'body') {
-                prompt = `Scrivi la PARTE CENTRALE E PRINCIPALE del capitolo "${chapterTitle}" del libro "${title}".
-                Devi essere estremamente approfondito, dettagliato e professionale. Spiega i concetti teorici, fornisci esempi concreti o casi studio, e dai passaggi pratici azionabili.
-                Obiettivo: Minimo 1000 - 1500 parole. Scrivi in ${genLang}. Non riscrivere il titolo del capitolo, inizia subito con il testo. ${context}`;
+                prompt = `Scrivi un blocco per la PARTE CENTRALE del capitolo "${chapterTitle}" del libro "${title}".
+                Spiega i concetti teorici, fornisci esempi o casi studio. Sviluppa un paio di sotto-argomenti.
+                Obiettivo: Circa 500 parole. Scrivi in ${genLang}. NON riscrivere il titolo del capitolo, inizia subito a scrivere il testo continuo. ${context}`;
             } else if (chunkType === 'outro') {
                 prompt = `Scrivi la conclusione e il riassunto finale per il capitolo "${chapterTitle}" del libro "${title}".
-                Riassumi i punti chiave, motiva il lettore a mettere in pratica ciò che ha imparato e fai un ponte logico (cliffhanger) verso il prossimo argomento.
+                Riassumi i punti chiave e motiva il lettore a mettere in pratica ciò che ha imparato.
                 Obiettivo: Circa 300 parole. Scrivi in ${genLang}. Non riscrivere il titolo del capitolo. ${context}`;
             }
 
             try {
                 let content = await fetchAIWithRetry(prompt);
                 
-                // Pulizia radicale
-                content = content.replace(/^(Ecco il|Ecco l'|Certo,|Sure,|Here is).*?\n/i, ''); // Rimuove "Ecco il testo"
-                content = content.replace(/\*\*/g, '').replace(/#/g, ''); // Rimuove markdown fastidioso
+                // Pulizia radicale dalle "allucinazioni di cortesia"
+                content = content.replace(/^(Ecco il|Ecco l'|Certo,|Sure,|Here is).*?\n/i, ''); 
+                content = content.replace(/\*\*/g, '').replace(/#/g, ''); 
                 
                 let spacing = (chunkType === 'intro' && currentText !== "") ? "\n\n---\n\n" : "\n\n";
                 editor.value += spacing + content.trim();
                 editor.scrollTop = editor.scrollHeight; 
                 updateWordCount();
                 
-                btn.innerHTML = `Fatto`;
-                btn.classList.replace('bg-indigo-600', 'bg-slate-700');
-                btn.classList.replace('bg-blue-600', 'bg-slate-700');
-                btn.classList.replace('bg-violet-600', 'bg-slate-700');
+                // Aggiornamento UI Dinamico Iterativo
+                if(chunkType === 'body') {
+                    // Mantiene il bottone blu e cambia il testo per incoraggiare l'iterazione
+                    btn.innerHTML = `<i data-lucide="plus" class="w-3 h-3 inline"></i> Espandi Corpo`;
+                    btn.classList.replace('bg-slate-600', 'bg-blue-600');
+                } else {
+                    btn.innerHTML = `<i data-lucide="check" class="w-3 h-3 inline"></i> Fatto`;
+                    btn.classList.replace('bg-indigo-600', 'bg-slate-700');
+                    btn.classList.replace('bg-blue-600', 'bg-slate-700');
+                    btn.classList.replace('bg-violet-600', 'bg-slate-700');
+                }
                 
             } catch (e) {
                 console.error(e);
-                btn.innerHTML = `Errore`;
-                btn.classList.add('bg-red-500');
+                btn.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Timeout/Errore`;
+                btn.classList.replace('bg-blue-600', 'bg-red-500');
+                btn.classList.replace('bg-indigo-600', 'bg-red-500');
+                btn.classList.replace('bg-violet-600', 'bg-red-500');
+                btn.classList.replace('bg-slate-600', 'bg-red-500');
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-50');
+                lucide.createIcons();
                 const wCount = parseInt(document.getElementById('wordCount').innerText);
                 document.getElementById('pageCount').value = Math.max(24, Math.floor(wCount / 250));
             }
@@ -634,7 +652,7 @@
                 return;
             }
 
-            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i>...`;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin inline"></i>...`;
             btn.disabled = true;
             lucide.createIcons();
 
@@ -842,7 +860,6 @@
             }
         }
 
-        // --- MOTORE COPERTINA PRO-CONVERSION ---
         function generateCover() {
             const title = document.getElementById('bookTitle').value || "TITOLO BESTSELLER";
             const subtitle = document.getElementById('bookSubtitle').value;
