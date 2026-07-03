@@ -52,7 +52,7 @@
                 <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 tracking-tight" style="font-family: 'Playfair Display', serif;">KDP COPILOT STUDIO</h1>
                 <p class="text-slate-400 mt-2 font-medium flex items-center gap-2 justify-center md:justify-start">
                     <span class="bg-blue-900/50 text-blue-400 px-2 py-0.5 rounded text-xs border border-blue-700/50">Bestseller Factory</span>
-                    Generazione Dinamica con Framework Editoriali
+                    Scrittura a Blocchi per Alta Qualità
                 </p>
             </div>
             <div class="flex flex-wrap gap-3 w-full md:w-auto items-end justify-center sm:justify-start">
@@ -67,8 +67,8 @@
                 <div class="glass-panel px-4 py-2 rounded-lg border-slate-600 flex flex-col w-full sm:w-auto">
                     <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Lingua</label>
                     <select id="genLang" class="bg-transparent text-amber-400 font-bold outline-none cursor-pointer custom-select pr-8 text-sm">
-                        <option value="Italiano" class="bg-slate-800">🇮🇹 Italiano</option>
-                        <option value="Inglese" selected class="bg-slate-800">🇬🇧 Inglese</option>
+                        <option value="Italiano" selected class="bg-slate-800">🇮🇹 Italiano</option>
+                        <option value="Inglese" class="bg-slate-800">🇬🇧 Inglese</option>
                         <option value="Spagnolo" class="bg-slate-800">🇪🇸 Spagnolo</option>
                     </select>
                 </div>
@@ -91,7 +91,7 @@
                     <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2">
                         <i data-lucide="cpu" class="w-6 h-6"></i> Console di Regia Editoriale
                     </h2>
-                    <p class="text-xs text-blue-600/80 mt-1">Genera l'idea e il Blueprint. Poi gestisci i capitoli uno ad uno con i framework di Copywriting.</p>
+                    <p class="text-xs text-blue-600/80 mt-1">Genera il Blueprint. Poi componi i capitoli a blocchi per la massima profondità.</p>
                 </div>
                 
                 <button id="btnToggleAgent" onclick="runPrepCycle()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg transition-colors">
@@ -154,19 +154,18 @@
             </div>
 
             <div class="lg:col-span-2 space-y-6">
-                <!-- PANNELLO COPILOT INTERATTIVO -->
                 <div class="glass-panel rounded-2xl p-6 shadow-xl relative overflow-hidden border-2 border-blue-500/30">
                     <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-700 pb-2 gap-4">
                         <h2 class="text-lg font-bold text-white flex items-center gap-2">
                             <i data-lucide="list-ordered" class="text-blue-400 w-5 h-5"></i> KDP Copilot: Fabbrica Capitoli
                         </h2>
-                        <span class="text-xs text-blue-400 font-medium bg-blue-900/30 px-3 py-1 rounded-full border border-blue-700/50">Modalità Controllo Qualità</span>
+                        <span class="text-xs text-blue-400 font-medium bg-blue-900/30 px-3 py-1 rounded-full border border-blue-700/50">Generazione a Blocchi</span>
                     </div>
                     
-                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-2 max-h-72 overflow-y-auto" id="tocContainer">
+                    <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-2 max-h-96 overflow-y-auto" id="tocContainer">
                         <p class="text-slate-500 italic text-sm text-center mt-12 mb-12">I capitoli generati dal Blueprint appariranno qui.</p>
-                        <div id="tocList" class="space-y-2 hidden"></div>
+                        <div id="tocList" class="space-y-4 hidden"></div>
                     </div>
                 </div>
 
@@ -197,7 +196,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 uppercase mb-1 flex justify-between">
                             <span>Contenuto Libro (Live Preview)</span>
-                            <span class="text-blue-500 font-normal lowercase tracking-normal">Il Copilot aggiungerà qui il testo approvato.</span>
+                            <span class="text-blue-500 font-normal lowercase tracking-normal">Aggiungi, correggi e formatta.</span>
                         </label>
                         <textarea id="manuscriptContent" rows="18" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-6 py-6 text-slate-200 focus:outline-none focus:border-amber-500 transition-all resize-y style-saggistica" placeholder="Il contenuto del libro apparirà qui..."></textarea>
                     </div>
@@ -284,7 +283,6 @@
 
     </div>
 
-    <!-- Modale Notifiche -->
     <div id="messageModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 opacity-0 transition-opacity">
         <div class="bg-slate-800 border border-slate-600 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl transform scale-95 transition-transform" id="modalContent">
             <h3 id="modalTitle" class="text-xl font-bold mb-2 text-white flex items-center gap-2">Notifica</h3>
@@ -298,7 +296,8 @@
         lucide.createIcons();
 
         let generatedTOC = [];
-        let agentActive = false;
+        let generatedKeywords = [];
+        let generatedCategories = [];
 
         function showModal(title, text, iconColor = "text-blue-500") {
             document.getElementById('modalTitle').innerHTML = `<i data-lucide="info" class="${iconColor} w-6 h-6"></i> ${title}`;
@@ -383,7 +382,7 @@
             const provider = document.getElementById('aiProvider').value;
             const genLang = document.getElementById('genLang').value;
             
-            const defaultSys = `Sei un autore bestseller e copywriter esperto. Redigi contenuti di altissima qualità, persuasivi e formattati perfettamente in lingua ${genLang}. Rispondi direttamente con il contenuto richiesto senza convenevoli, senza frasi introduttive (es. "Ecco il capitolo") e senza note finali.`;
+            const defaultSys = `Sei un autore bestseller. Redigi contenuti di altissima qualità, persuasivi e formattati perfettamente in lingua ${genLang}. Rispondi direttamente con il contenuto richiesto senza convenevoli e senza note finali.`;
             const systemText = customSystemInstruction || defaultSys;
 
             let delay = 1000;
@@ -399,11 +398,6 @@
                     const data = await response.json();
                     if(!data || !data.text) throw new Error("Nessun testo ritornato.");
                     
-                    const textLower = data.text.toLowerCase();
-                    if(textLower.includes("non posso") || textLower.includes("i cannot") || textLower.includes("i'm sorry")) {
-                        throw new Error("Rifiuto AI rilevato.");
-                    }
-
                     return schema ? data : data.text;
                 } catch (error) {
                     if (i === retries - 1) throw error;
@@ -532,19 +526,26 @@
             }
         }
 
-        // --- KDP COPILOT: STUDIO INTERATTIVO (DINAMICO) ---
+        // --- KDP COPILOT: STUDIO INTERATTIVO (A BLOCCHI) ---
         function renderTOC() {
             const container = document.getElementById('tocList');
             document.getElementById('tocContainer').querySelector('p').classList.add('hidden');
             
             container.innerHTML = generatedTOC.map((ch, i) => `
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-800/80 p-3 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors gap-3">
-                    <span class="text-sm font-semibold text-slate-200 flex-1">${ch}</span>
-                    <div class="flex gap-2 w-full sm:w-auto shrink-0">
-                        <button onclick="copilotGenerateChapter(${i})" id="btn-ch-${i}" class="btn-copilot flex-1 sm:flex-none bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md text-xs font-bold flex items-center justify-center gap-1 shadow-sm">
-                            <i data-lucide="pen-tool" class="w-3 h-3"></i> Scrivi
+                <div class="bg-slate-800/80 p-4 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors">
+                    <h3 class="text-sm font-bold text-slate-200 mb-3 border-b border-slate-700 pb-2">${ch}</h3>
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="copilotGenerateChunk('intro', '${ch.replace(/'/g, "\\'")}', ${i})" id="btn-intro-${i}" class="btn-copilot flex-1 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm">
+                            1. Intro Capitolo
                         </button>
-                        <button onclick="copilotGenerateImage('${ch.replace(/'/g, "\\'")}', ${i})" id="btn-img-${i}" class="btn-copilot flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md text-xs font-bold flex items-center justify-center gap-1 shadow-sm">
+                        <button onclick="copilotGenerateChunk('body', '${ch.replace(/'/g, "\\'")}', ${i})" id="btn-body-${i}" class="btn-copilot flex-1 bg-blue-600 hover:bg-blue-500 text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm">
+                            2. Corpo Centrale
+                        </button>
+                        <button onclick="copilotGenerateChunk('outro', '${ch.replace(/'/g, "\\'")}', ${i})" id="btn-outro-${i}" class="btn-copilot flex-1 bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded text-[10px] font-bold shadow-sm">
+                            3. Conclusione
+                        </button>
+                        <button onclick="copilotGenerateImage('${ch.replace(/'/g, "\\'")}', ${i})" id="btn-img-${i}" class="btn-copilot w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded text-[10px] font-bold flex items-center justify-center gap-1 shadow-sm">
                             <i data-lucide="image" class="w-3 h-3"></i> Illustra
                         </button>
                     </div>
@@ -555,85 +556,70 @@
             container.classList.remove('hidden');
         }
 
-        async function copilotGenerateChapter(index) {
-            const chapterTitle = generatedTOC[index];
-            const btn = document.getElementById(`btn-ch-${index}`);
+        async function copilotGenerateChunk(chunkType, chapterTitle, index) {
+            const btn = document.getElementById(`btn-${chunkType}-${index}`);
+            const originalText = btn.innerText;
             
-            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Attendi...`;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin inline"></i>...`;
             btn.disabled = true;
-            btn.classList.replace('bg-blue-600', 'bg-slate-600');
+            btn.classList.add('opacity-50');
             lucide.createIcons();
 
             const title = document.getElementById('bookTitle').value;
             const editor = document.getElementById('manuscriptContent');
+            const genLang = document.getElementById('genLang').value;
             
-            // Iniezione Contesto
+            // Creiamo un contesto "pulito" prendendo solo le ultime 100 parole dall'editor
             let context = "";
             let currentText = editor.value.trim();
             if (currentText.length > 0) {
-                const lastText = currentText.slice(-600).replace(/\n/g, ' ');
-                context = `\n[NOTA DI CONTESTO per continuità logica: l'ultima frase del capitolo precedente era: "...${lastText}"]`;
-            } else {
-                context = "\n[NOTA: Questo è l'inizio del libro.]";
+                let words = currentText.split(/\s+/);
+                let lastWords = words.slice(-100).join(' ');
+                // Rimuoviamo i tag IMG per non confondere l'AI
+                lastWords = lastWords.replace(/\[IMG:.*?\]/g, '');
+                context = `\n[Contesto per continuità: Il testo appena prima di questo blocco terminava così: "...${lastText}"]`;
             }
 
-            // MOTORE DINAMICO FRAMEWORK
-            let frameworkPrompt = "";
-            const chTitleLower = chapterTitle.toLowerCase();
+            let prompt = "";
             
-            if (chTitleLower.includes("intro") || index === 0) {
-                frameworkPrompt = `Scrivi un'Introduzione magnetica per il libro "${title}".
-                Usa la formula PAS (Problem, Agitation, Solution).
-                1. Cattura l'attenzione e descrivi il problema che vive il lettore.
-                2. Agita il problema (cosa succede se non lo risolve).
-                3. Presenta questo libro come la soluzione pratica e definitiva.
-                Obiettivo lunghezza: circa 600-900 parole. Scrivi in modo empatico e diretto.`;
-            } 
-            else if (chTitleLower.includes("conclus") || index === generatedTOC.length - 1) {
-                frameworkPrompt = `Scrivi la Conclusione per il libro "${title}".
-                1. Fai un riassunto motivazionale e ispirante di ciò che il lettore ha imparato.
-                2. Spingilo all'azione per applicare le conoscenze.
-                3. Alla fine, inserisci una breve Call To Action chiedendo gentilmente di lasciare una recensione su Amazon se il libro è stato utile.
-                Obiettivo lunghezza: circa 500-800 parole.`;
-            } 
-            else {
-                frameworkPrompt = `Stai scrivendo un capitolo centrale e cruciale del libro "${title}".
-                Il capitolo si intitola: "${chapterTitle}".
-                DEVI ESSERE ESTREMAMENTE APPROFONDITO (Obiettivo minimo: 1500 parole).
-                Usa questo framework:
-                1. Introduzione teorica profonda al concetto.
-                2. Un esempio realistico o caso studio per spiegare meglio.
-                3. Azioni pratiche (Actionable steps) o consigli concreti per il lettore.
-                Non fare riassunti frettolosi, espandi ogni singolo paragrafo.`;
+            if (chunkType === 'intro') {
+                prompt = `Scrivi l'introduzione per il capitolo intitolato "${chapterTitle}" del libro "${title}".
+                Usa il framework PAS: identifica il Problema del lettore, Agita il problema (rendilo sentito), e introduci come questo capitolo offrirà la Soluzione. 
+                Obiettivo: Circa 400 parole. Scrivi in ${genLang}. Inizia mettendo il titolo del capitolo su una riga, lascia una riga vuota, poi inizia il testo.`;
+            } else if (chunkType === 'body') {
+                prompt = `Scrivi la PARTE CENTRALE E PRINCIPALE del capitolo "${chapterTitle}" del libro "${title}".
+                Devi essere estremamente approfondito, dettagliato e professionale. Spiega i concetti teorici, fornisci esempi concreti o casi studio, e dai passaggi pratici azionabili.
+                Obiettivo: Minimo 1000 - 1500 parole. Scrivi in ${genLang}. Non riscrivere il titolo del capitolo, inizia subito con il testo. ${context}`;
+            } else if (chunkType === 'outro') {
+                prompt = `Scrivi la conclusione e il riassunto finale per il capitolo "${chapterTitle}" del libro "${title}".
+                Riassumi i punti chiave, motiva il lettore a mettere in pratica ciò che ha imparato e fai un ponte logico (cliffhanger) verso il prossimo argomento.
+                Obiettivo: Circa 300 parole. Scrivi in ${genLang}. Non riscrivere il titolo del capitolo. ${context}`;
             }
-
-            const finalPrompt = `${frameworkPrompt}
-            
-            REGOLE FORMATTAZIONE: 
-            Inizia il testo scrivendo il titolo del capitolo su una riga, lascia una riga vuota e inizia il contenuto. NON USARE MAI asterischi o cancelletti per i titoli. Scrivi solo testo pulito. ${context}`;
 
             try {
-                let content = await fetchAIWithRetry(finalPrompt);
+                let content = await fetchAIWithRetry(prompt);
                 
-                // Pulizia robot-talk (Es: "Ecco l'introduzione:")
-                content = content.replace(/^(Ecco il|Ecco l'|Sure,|Here is|Certo, ecco).*?\n/i, '');
-                let cleanText = content.replace(/\*\*/g, '').replace(/#/g, '');
+                // Pulizia radicale
+                content = content.replace(/^(Ecco il|Ecco l'|Certo,|Sure,|Here is).*?\n/i, ''); // Rimuove "Ecco il testo"
+                content = content.replace(/\*\*/g, '').replace(/#/g, ''); // Rimuove markdown fastidioso
                 
-                editor.value += (editor.value.trim() !== "" ? "\n\n" : "") + cleanText.trim() + "\n\n---\n\n";
+                let spacing = (chunkType === 'intro' && currentText !== "") ? "\n\n---\n\n" : "\n\n";
+                editor.value += spacing + content.trim();
                 editor.scrollTop = editor.scrollHeight; 
                 updateWordCount();
                 
-                btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Fatto`;
-                btn.classList.replace('bg-slate-600', 'bg-slate-700');
-                btn.disabled = false; 
+                btn.innerHTML = `Fatto`;
+                btn.classList.replace('bg-indigo-600', 'bg-slate-700');
+                btn.classList.replace('bg-blue-600', 'bg-slate-700');
+                btn.classList.replace('bg-violet-600', 'bg-slate-700');
                 
             } catch (e) {
                 console.error(e);
-                btn.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3 text-white"></i> Riprova`;
-                btn.classList.replace('bg-slate-600', 'bg-red-500');
-                btn.disabled = false;
+                btn.innerHTML = `Errore`;
+                btn.classList.add('bg-red-500');
             } finally {
-                lucide.createIcons();
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
                 const wCount = parseInt(document.getElementById('wordCount').innerText);
                 document.getElementById('pageCount').value = Math.max(24, Math.floor(wCount / 250));
             }
@@ -648,9 +634,8 @@
                 return;
             }
 
-            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Render...`;
+            btn.innerHTML = `<i data-lucide="loader" class="w-3 h-3 animate-spin"></i>...`;
             btn.disabled = true;
-            btn.classList.replace('bg-emerald-600', 'bg-slate-600');
             lucide.createIcons();
 
             const style = document.getElementById('bookStyle').value;
@@ -661,19 +646,17 @@
 
             try {
                 let promptUrl = await fetchImageWithFallback(imgPrompt, 800, 600);
-                editor.value += (editor.value.trim() !== "" ? "\n" : "") + `[IMG:${promptUrl}]\n\n`;
+                editor.value += (editor.value.trim() !== "" ? "\n\n" : "") + `[IMG:${promptUrl}]\n\n`;
                 editor.scrollTop = editor.scrollHeight;
                 
-                btn.innerHTML = `<i data-lucide="check" class="w-3 h-3"></i> Inserita`;
-                btn.classList.replace('bg-slate-600', 'bg-slate-700');
-                btn.disabled = false;
+                btn.innerHTML = `Inserita`;
+                btn.classList.replace('bg-emerald-600', 'bg-slate-700');
             } catch (e) {
                 console.error(e);
-                btn.innerHTML = `<i data-lucide="alert-triangle" class="w-3 h-3 text-white"></i> Riprova`;
-                btn.classList.replace('bg-slate-600', 'bg-red-500');
-                btn.disabled = false;
+                btn.innerHTML = `Errore`;
+                btn.classList.replace('bg-emerald-600', 'bg-red-500');
             } finally {
-                lucide.createIcons();
+                btn.disabled = false;
             }
         }
 
@@ -859,6 +842,7 @@
             }
         }
 
+        // --- MOTORE COPERTINA PRO-CONVERSION ---
         function generateCover() {
             const title = document.getElementById('bookTitle').value || "TITOLO BESTSELLER";
             const subtitle = document.getElementById('bookSubtitle').value;
