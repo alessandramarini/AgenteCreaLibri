@@ -1,39 +1,51 @@
+// api/generate.js
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
-    const { provider, prompt, schema, systemText, type } = req.body;
+    
+    const { provider, prompt, schema, systemText } = req.body;
+    
+    // Lista di provider configurabili (puoi gestire più chiavi qui per evitare il rate limit)
+    const configs = {
+        gemini: {
+            url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+            key: process.env.GEMINI_API_KEY,
+            transform: (data) => data.candidates[0].content.parts[0].text
+        },
+        groq: {
+            url: "https://api.groq.com/openai/v1/chat/completions",
+            key: process.env.GROQ_API_KEY,
+            model: "llama-3.1-70b-versatile",
+            transform: (data) => data.choices[0].message.content
+        }
+    };
+
+    const activeProvider = configs[provider] || configs.groq;
 
     try {
-        if (type === 'image') {
-            const seed = Math.floor(Math.random() * 1000000);
-            return res.status(200).json({ url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=600&seed=${seed}` });
-        }
-
-        // Chiamata Gemini ottimizzata
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) throw new Error("API Key mancante");
-
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`${activeProvider.url}${provider === 'gemini' ? `?key=${activeProvider.key}` : ''}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+            headers: { 
+                'Content-Type': 'application/json',
+                ...(provider === 'groq' && { 'Authorization': `Bearer ${activeProvider.key}` })
+            },
+            body: JSON.stringify(provider === 'gemini' ? {
                 contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemText || "Sei un esperto KDP." }] }
+                systemInstruction: { parts: [{ text: systemText }] }
+            } : {
+                model: activeProvider.model,
+                messages: [{ role: "system", content: systemText }, { role: "user", content: prompt }]
             })
         });
 
-        const data = await response.json();
-        const text = data.candidates[0].content.parts[0].text;
+        if (!response.ok) throw new Error(`Provider ${provider} failed: ${response.status}`);
         
-        return res.status(200).json(schema ? JSON.parse(text.replace(/
-http://googleusercontent.com/immersive_entry_chip/0
-
-### 3. Debug istantaneo nel tuo `index.html`
-Per capire se il problema è la chiave o il server, apri la console del browser (F12) mentre l'agente gira. Se vedi un errore 500, clicca sulla voce rossa in console: lì troverai il messaggio d'errore reale (es: "API KEY INVALID" o "TIMEOUT").
-
-**Nota importante sulla stabilità:**
-Se continui a ricevere `FUNCTION_INVOCATION_FAILED` anche dopo aver aggiornato il codice, significa che Vercel sta faticando a gestire le chiamate lunghe. 
-**Prova a fare questo:**
-1. Vai su Vercel > **Settings** > **Functions**.
-2. Aumenta il **Timeout** della funzione se il piano lo permette, oppure semplicemente esegui un nuovo **Deploy** (Deployment tab -> Redeploy) per forzare il riavvio completo dei server.
-
-Se il problema persiste, conferma se nella dashboard di Vercel, nella sezione **Logs**, compare un errore specifico (es. "Timeout" o "Module not found").
+        const data = await response.json();
+        const text = activeProvider.transform(data);
+        
+        return res.status(200).json({ text });
+    } catch (error) {
+        // Logica di Fallback: se fallisce, prova il provider secondario automaticamente
+        console.error("Errore API:", error);
+        return res.status(500).json({ error: "Failover necessario", detail: error.message });
+    }
+}
