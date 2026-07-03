@@ -151,7 +151,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Autore Pen-Name</label>
-                            <input type="text" id="bookAuthor" value="AI Publishing Empire" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
+                            <input type="text" id="bookAuthor" value="Alessandra Marini" class="w-full bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-amber-500">
                         </div>
                     </div>
                 </div>
@@ -203,7 +203,6 @@
                             <i data-lucide="file-text" class="text-amber-500 w-5 h-5"></i> Manoscritto & Editor
                         </h2>
                         
-                        <!-- SELETTORE STILE CONVERSIONE (NUOVO) -->
                         <div class="flex items-center gap-3 w-full sm:w-auto">
                             <div class="bg-slate-800 rounded-lg p-1.5 flex items-center border border-slate-600 w-full">
                                 <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider px-2 whitespace-nowrap"><i data-lucide="layout" class="w-3 h-3 inline mr-1 mb-0.5"></i> Stile Rendering:</label>
@@ -255,6 +254,25 @@
             <p class="text-center text-slate-400 text-sm mb-6">Il PDF dell'interno verrà formattato seguendo automaticamente lo "Stile Rendering" selezionato sopra.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
+                
+                <!-- PREVIEW IMMAGINE GENERATA DALL'AI -->
+                <div class="md:col-span-4 flex flex-col md:flex-row items-center gap-6 bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+                    <div class="flex-shrink-0 w-32 h-48 bg-slate-900 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden shadow-lg relative">
+                        <i data-lucide="image" class="w-8 h-8 text-slate-700 absolute z-0"></i>
+                        <img id="aiCoverPreview" crossOrigin="Anonymous" src="" class="w-full h-full object-cover relative z-10 hidden" alt="Cover Preview">
+                    </div>
+                    <div class="flex-1 w-full">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-2 text-amber-500 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Immagine di Copertina (Best-Seller Style)
+                        </label>
+                        <p class="text-xs text-slate-400 mb-2">L'AI ha scritto questo prompt analizzando la copertina più venduta della tua nicchia. L'immagine verrà applicata automaticamente esportando il PDF.</p>
+                        <textarea id="aiCoverPrompt" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-emerald-400 text-xs focus:border-amber-500 transition-colors resize-none mb-3" placeholder="Il prompt dell'immagine generato dall'AI apparirà qui..."></textarea>
+                        <button onclick="refreshCoverImage()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-colors flex items-center gap-2 shadow">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> Rigenera Immagine (Nuovo Seed)
+                        </button>
+                    </div>
+                </div>
+
                 <div class="md:col-span-2 flex items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
                     <div class="w-12 h-12 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
                         <i data-lucide="book-open" class="text-slate-300"></i>
@@ -272,7 +290,7 @@
                         <i data-lucide="palette" class="text-slate-300"></i>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Colori Copertina</label>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Colori Base Copertina</label>
                         <div class="flex h-8 gap-2 w-full">
                             <input type="color" id="coverColor" value="#0f172a" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
                             <input type="color" id="textColor" value="#fbbf24" class="h-full w-full bg-transparent rounded cursor-pointer border-0 p-0">
@@ -289,7 +307,7 @@
                     <i data-lucide="file-text" class="w-5 h-5 group-hover:text-amber-400 transition-colors"></i> Interno PDF
                 </button>
                 <button onclick="generateCover()" class="flex-1 btn-gold py-4 px-6 rounded-xl flex items-center justify-center gap-2">
-                    <i data-lucide="image" class="w-5 h-5"></i> Cover PDF
+                    <i data-lucide="image" class="w-5 h-5"></i> Cover PDF HD
                 </button>
             </div>
         </div>
@@ -338,20 +356,22 @@
             setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
         }
 
-        // Gestione Cambio Stile in tempo reale (Live Preview)
         function updateEditorStyle() {
             const style = document.getElementById('bookStyle').value;
             const editor = document.getElementById('manuscriptContent');
-            
-            // Rimuove vecchie classi
             editor.classList.remove('style-saggistica', 'style-romanzo', 'style-manuale');
-            
-            // Aggiunge la nuova
             editor.classList.add(`style-${style}`);
-            
-            if(!agentActive) {
-                logAgent(`Stile visivo aggiornato: ${style.toUpperCase()}`);
-            }
+            if(!agentActive) logAgent(`Stile visivo aggiornato: ${style.toUpperCase()}`);
+        }
+
+        // Sistema di Rendering Immagine Copertina tramite AI (Pollinations API gratuita e senza chiave)
+        function refreshCoverImage() {
+            const promptText = document.getElementById('aiCoverPrompt').value;
+            if(!promptText) return;
+            const img = document.getElementById('aiCoverPreview');
+            img.classList.remove('hidden');
+            const seed = Math.floor(Math.random() * 1000000); // Evita la cache del browser
+            img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=600&height=900&nologo=true&seed=${seed}`;
         }
 
         async function fetchAIWithRetry(prompt, schema = null, retries = 3, customSystemInstruction = null) {
@@ -375,10 +395,8 @@
                     }
                     
                     const data = await response.json();
-                    
                     if (schema) { return data; } 
                     else { return data.text; }
-
                 } catch (error) {
                     if (i === retries - 1) throw error;
                     await new Promise(res => setTimeout(res, delay));
@@ -427,19 +445,23 @@
                 document.getElementById('rawIdea').value = idea;
                 logAgent(`Trovata nicchia ad alta conversione: "${idea}"`);
 
-                logAgent("Generazione architettura KDP e scelta stile ad alta conversione...");
+                logAgent("Generazione architettura KDP, stile conversione e prompt copertina...");
                 await generateBlueprintCore(idea);
-                logAgent("Blueprint completato. Indice, Keyword e Stile estratti.");
+                logAgent("Blueprint completato. Indice, Keyword e Prompt Immagine estratti.");
 
                 logAgent("Avvio rete neurale per stesura manoscritto (10 capitoli)...");
                 await generateFullBookCore();
-                logAgent("Manoscritto completato con successo. L'editor è pronto per la revisione manuale.");
+                logAgent("Manoscritto completato con successo.");
 
                 logAgent("Generazione moduli di neuromarketing per A+ Content...");
                 await generateAPlusCore();
                 logAgent("Copy persuasivo A+ generato.");
 
-                logAgent("Compilazione ed esportazione file (PDF impaginato e HTML)...");
+                logAgent("Compilazione ed esportazione file (PDF impaginato, Cover con Immagine e HTML)...");
+                
+                // Lascia qualche secondo di respiro per permettere al browser di scaricare l'immagine della copertina prima del PDF
+                await new Promise(res => setTimeout(res, 5000));
+                
                 generateKindle(); generateInterior(); generateCover();
                 logAgent("File scaricati. Libro pronto per l'upload su Amazon KDP.");
 
@@ -490,7 +512,7 @@
             const idea = document.getElementById('rawIdea').value.trim();
             if (!idea) return showModal("Attenzione", "Inserisci un'idea prima.", "text-red-500");
             await generateBlueprintCore(idea);
-            showModal("Blueprint Completato", "Analisi di mercato terminata. Verifica lo stile impostato per l'editor.", "text-emerald-500");
+            showModal("Blueprint Completato", "L'analisi di mercato ha estratto il TOC, scelto lo stile di conversione e disegnato il prompt dell'immagine.", "text-emerald-500");
         }
 
         async function generateBlueprintCore(ideaText) {
@@ -503,12 +525,13 @@
 
             const prompt = `Analizza l'idea: "${ideaText}". Crea un blueprint per un libro KDP profittevole mirato al mercato ${genLang}. Genera:
             1. Titolo accattivante in ${genLang}.
-            2. Sottotitolo (hook) SEO.
+            2. Sottotitolo (hook) SEO in ${genLang}.
             3. 7 keyword long-tail esatte.
             4. 3 categorie Amazon.
             5. Testo per la quarta di copertina (AIDA).
             6. Sommario (TOC) di ESATTAMENTE 10 capitoli.
-            7. Scegli lo stile di formattazione interno migliore per massimizzare le conversioni di questa nicchia, scegliendo ESATTAMENTE una di queste tre parole: "saggistica", "romanzo", "manuale".`;
+            7. Scegli lo stile di formattazione interno ("saggistica", "romanzo", "manuale").
+            8. Scrivi un prompt in INGLESE (max 40 parole) per un AI Image Generator. Il prompt deve descrivere una copertina senza testi o scritte, che ricalchi ESATTAMENTE lo stile visivo del best-seller assoluto per questo genere.`;
 
             const schema = {
                 type: "OBJECT",
@@ -517,8 +540,9 @@
                     keywords: { type: "ARRAY", items: { type: "STRING" } },
                     categories: { type: "ARRAY", items: { type: "STRING" } },
                     back_cover: { type: "STRING" }, toc: { type: "ARRAY", items: { type: "STRING" } },
-                    book_style: { type: "STRING" } // Aggiunto per far decidere all'AI
-                }, required: ["title", "subtitle", "keywords", "categories", "back_cover", "toc", "book_style"]
+                    book_style: { type: "STRING" },
+                    cover_prompt: { type: "STRING", description: "English prompt for image generation, no text included" }
+                }, required: ["title", "subtitle", "keywords", "categories", "back_cover", "toc", "book_style", "cover_prompt"]
             };
 
             try {
@@ -527,7 +551,7 @@
                 document.getElementById('bookSubtitle').value = result.subtitle;
                 document.getElementById('backCoverText').value = result.back_cover;
                 
-                // Imposta lo stile scelto dall'AI e aggiorna la preview
+                // Aggiornamento Stile e Immagine
                 const styleSelect = document.getElementById('bookStyle');
                 if(['saggistica', 'romanzo', 'manuale'].includes(result.book_style.toLowerCase())) {
                     styleSelect.value = result.book_style.toLowerCase();
@@ -535,6 +559,9 @@
                     styleSelect.value = 'saggistica';
                 }
                 updateEditorStyle();
+
+                document.getElementById('aiCoverPrompt').value = result.cover_prompt;
+                refreshCoverImage();
                 
                 generatedKeywords = result.keywords;
                 generatedCategories = result.categories;
@@ -553,7 +580,7 @@
         async function triggerManualWrite() {
             if (generatedTOC.length === 0) return showModal("Errore", "Genera prima il Blueprint.", "text-red-500");
             await generateFullBookCore();
-            showModal("Libro Completato", "Il manoscritto è pronto. Controllalo nella preview qui sotto prima di esportarlo in PDF.", "text-emerald-500");
+            showModal("Libro Completato", "Il manoscritto è pronto. Controllalo nella preview prima di esportarlo in PDF.", "text-emerald-500");
         }
 
         async function generateFullBookCore() {
@@ -566,7 +593,7 @@
             const status = document.getElementById('writingStatus');
             
             isWriting = true; btn.disabled = true;
-            msTextarea.value = ""; // Pulisce
+            msTextarea.value = ""; 
             loader.classList.add('active'); status.classList.remove('hidden');
 
             try {
@@ -592,7 +619,7 @@
                     await new Promise(r => setTimeout(r, 1500)); 
                 }
                 progress.style.width = `100%`;
-                status.innerText = "Manoscritto completato! Rivedilo nella preview.";
+                status.innerText = "Manoscritto completato!";
             } finally {
                 isWriting = false; btn.disabled = false;
                 setTimeout(() => { loader.classList.remove('active'); }, 2000);
@@ -651,7 +678,7 @@
         }
 
         // =========================================================================
-        // MOTORE EXPORT (PDF DINAMICO e KINDLE HTML)
+        // MOTORE EXPORT 
         // =========================================================================
         function generateKindle() {
             const title = document.getElementById('bookTitle').value || "Senza Titolo";
@@ -665,7 +692,7 @@
             for (let i = 0; i < paragraphs.length; i++) {
                 let para = paragraphs[i].trim();
                 if (para === "" || para === "---") continue;
-                let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.toLowerCase().startsWith("capítulo") || para.toLowerCase().startsWith("chapitre") || para.toLowerCase().startsWith("kapitel") || para.match(/^[0-9]+\./);
+                let isChapterTitle = para.toLowerCase().startsWith("capitolo") || para.toLowerCase().startsWith("chapter") || para.match(/^[0-9]+\./);
                 if (isChapterTitle) { htmlContent += `\n<h1>${para}</h1>\n`; } else { htmlContent += `<p>${para}</p>\n`; }
             }
             htmlContent += `</body></html>`;
@@ -680,26 +707,16 @@
             const title = document.getElementById('bookTitle').value || "Senza Titolo";
             const author = document.getElementById('bookAuthor').value || "Autore Sconosciuto";
             const content = document.getElementById('manuscriptContent').value;
-            const style = document.getElementById('bookStyle').value; // Recupera lo stile scelto
+            const style = document.getElementById('bookStyle').value; 
             
             if(!content.trim() || content.includes("Inizializzazione")) return;
 
             const doc = new jsPDF({ orientation: "portrait", unit: "in", format: [PAGE_WIDTH, PAGE_HEIGHT] });
             
-            // Impostazione Font Dinamici
-            let fontTitle = "helvetica";
-            let fontBody = "times";
-            let lineSpacingBody = 0.22;
-            let titleSize = 16;
-            let bodySize = 11;
+            let fontTitle = "helvetica"; let fontBody = "times"; let lineSpacingBody = 0.22; let titleSize = 16; let bodySize = 11;
+            if (style === "romanzo") { fontTitle = "times"; fontBody = "times"; lineSpacingBody = 0.25; titleSize = 18; bodySize = 12; } 
+            else if (style === "manuale") { fontTitle = "helvetica"; fontBody = "helvetica"; lineSpacingBody = 0.20; titleSize = 16; bodySize = 10; }
 
-            if (style === "romanzo") {
-                fontTitle = "times"; fontBody = "times"; lineSpacingBody = 0.25; titleSize = 18; bodySize = 12;
-            } else if (style === "manuale") {
-                fontTitle = "helvetica"; fontBody = "helvetica"; lineSpacingBody = 0.20; titleSize = 16; bodySize = 10;
-            }
-
-            // FRONTESPIZIO
             doc.setFont(fontTitle, "bold"); doc.setFontSize(24);
             const titleLines = doc.splitTextToSize(title, PAGE_WIDTH - 2);
             doc.text(titleLines, PAGE_WIDTH / 2, 3, { align: "center" });
@@ -707,22 +724,17 @@
             doc.setFont(fontTitle, "normal"); doc.setFontSize(14);
             doc.text(author, PAGE_WIDTH / 2, 4 + (titleLines.length * 0.4), { align: "center" });
             
-            // PAGINA COPYRIGHT
             doc.addPage();
             doc.setFont(fontBody, "normal"); doc.setFontSize(10);
             doc.text(`Copyright © ${new Date().getFullYear()} ${author}`, 0.75, 8);
             doc.text("Tutti i diritti riservati.", 0.75, 8.2);
 
-            // CONTENUTO MANOSCRITTO
             doc.addPage();
             const marginLeft = 0.75; const marginTop = 0.75; const maxWidth = PAGE_WIDTH - marginLeft - 0.75;
             const paragraphs = content.split('\n');
             let cursorY = marginTop; let pageNum = 1;
 
-            const printPageNumber = () => { 
-                doc.setFont(fontBody, "normal"); doc.setFontSize(9); 
-                doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); 
-            };
+            const printPageNumber = () => { doc.setFont(fontBody, "normal"); doc.setFontSize(9); doc.text(pageNum.toString(), PAGE_WIDTH / 2, PAGE_HEIGHT - 0.4, { align: "center" }); };
 
             for (let i = 0; i < paragraphs.length; i++) {
                 let para = paragraphs[i].trim();
@@ -746,7 +758,7 @@
                     doc.text(lines[j], marginLeft, cursorY);
                     cursorY += isChapterTitle ? 0.35 : lineSpacingBody;
                 }
-                cursorY += 0.15; // Spazio extra tra paragrafi
+                cursorY += 0.15; 
             }
             printPageNumber();
             doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Interior.pdf`);
@@ -767,41 +779,70 @@
             const totalHeight = PAGE_HEIGHT + (bleed * 2);
 
             const doc = new jsPDF({ orientation: "landscape", unit: "in", format: [totalWidth, totalHeight] });
-            doc.setFillColor(bgColor); doc.rect(0, 0, totalWidth, totalHeight, "F"); doc.setTextColor(txtColor);
-
-            const backCoverRightX = PAGE_WIDTH + bleed;
-            const spineLeftX = backCoverRightX;
+            
+            // 1. Sfondo base (Retro e Spalla)
+            doc.setFillColor(bgColor); doc.rect(0, 0, totalWidth, totalHeight, "F"); 
+            
+            // Calcolo ESATTO coordinate (Da sx a dx: Retrocopertina -> Spalla -> Frontale)
+            const backCoverWidth = PAGE_WIDTH + bleed;
+            const spineLeftX = backCoverWidth;
+            const spineCenterX = spineLeftX + (spineWidth / 2);
             const frontCoverLeftX = spineLeftX + spineWidth;
+            const frontCenterX = frontCoverLeftX + (PAGE_WIDTH / 2);
 
-            if (pages >= 79) {
-                doc.setFont("helvetica", "bold");
-                let spineFontSize = spineWidth * 72 * 0.5; 
-                if (spineFontSize > 12) spineFontSize = 12;
-                doc.setFontSize(spineFontSize);
-                const spineCenterY = totalHeight / 2;
-                const spineCenterX = spineLeftX + (spineWidth / 2);
-                doc.text(`${author}      ${title}`, spineCenterX, spineCenterY, { angle: 270, align: "center", baseline: "middle" });
+            // 2. Immagine AI Frontale
+            const imgElement = document.getElementById('aiCoverPreview');
+            if (imgElement && imgElement.complete && imgElement.src && !imgElement.src.includes('placeholder') && !imgElement.classList.contains('hidden')) {
+                try {
+                    doc.addImage(imgElement, "JPEG", frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight);
+                } catch(e) { console.error("Errore esportazione immagine:", e); }
+            } else {
+                // Sfondo frontale vuoto se l'immagine non è pronta
+                doc.rect(frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight, "F");
             }
 
-            const frontCenterX = frontCoverLeftX + (PAGE_WIDTH / 2);
+            // 3. Spalla (Spine) esattamente al centro (Rotazione per essere letta dall'alto al basso)
+            doc.setTextColor(txtColor);
+            if (pages >= 79) {
+                doc.setFont("helvetica", "bold");
+                let spineFontSize = (spineWidth * 72) * 0.7; // Adatta la grandezza allo spessore
+                if (spineFontSize > 14) spineFontSize = 14;
+                doc.setFontSize(spineFontSize);
+                const spineCenterY = totalHeight / 2;
+                doc.text(`${author}        ${title}`, spineCenterX, spineCenterY, { angle: 270, align: "center", baseline: "middle" });
+            }
+
+            // 4. Copertina Frontale (Box Testi Semitrasparenti / Solidi per Leggibilità sull'immagine)
             doc.setFont("helvetica", "bold");
             doc.setFontSize(36);
             let splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 1);
             if(splitTitle.length > 3) { doc.setFontSize(28); splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 1); }
-            doc.text(splitTitle, frontCenterX, 2, { align: "center" });
+            
+            // Sfondo scuro per il titolo
+            doc.setFillColor(bgColor);
+            const titleBoxHeight = (splitTitle.length * 0.4) + 1;
+            doc.rect(frontCoverLeftX, 0.7, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 0.8 : 0), "F");
+            
+            doc.setTextColor(txtColor);
+            doc.text(splitTitle, frontCenterX, 1.4, { align: "center" });
             
             if(subtitle) {
                 doc.setFont("helvetica", "normal"); doc.setFontSize(14);
                 const splitSub = doc.splitTextToSize(subtitle, PAGE_WIDTH - 1.5);
-                doc.text(splitSub, frontCenterX, 2.5 + (splitTitle.length * 0.4), { align: "center" });
+                doc.text(splitSub, frontCenterX, 1.6 + (splitTitle.length * 0.4), { align: "center" });
             }
             
+            // Sfondo scuro per l'autore
+            doc.setFillColor(bgColor);
+            doc.rect(frontCoverLeftX, totalHeight - 2.2, PAGE_WIDTH + bleed, 2.2, "F");
+            
             doc.setFont("helvetica", "bold"); doc.setFontSize(20);
-            doc.text(author, frontCenterX, totalHeight - 1.5, { align: "center" });
+            doc.text(author, frontCenterX, totalHeight - 1.2, { align: "center" });
             doc.setDrawColor(txtColor); doc.setLineWidth(0.05);
-            doc.line(frontCenterX - 1.5, totalHeight - 2, frontCenterX + 1.5, totalHeight - 2);
+            doc.line(frontCenterX - 1.5, totalHeight - 1.5, frontCenterX + 1.5, totalHeight - 1.5);
 
-            const backCenterX = bleed + (PAGE_WIDTH / 2);
+            // 5. Retrocopertina (Back Cover)
+            const backCenterX = (PAGE_WIDTH / 2) + (bleed / 2);
             doc.setFontSize(16);
             const splitTitleBack = doc.splitTextToSize(title, PAGE_WIDTH - 1.5);
             doc.text(splitTitleBack, backCenterX, 1.5, { align: "center" });
@@ -811,11 +852,12 @@
             const splitBack = doc.splitTextToSize(backText, safeBackWidth);
             doc.text(splitBack, backCenterX, 2.5 + (splitTitleBack.length * 0.2), { align: "center", maxWidth: safeBackWidth });
 
+            // Barcode
             doc.setFillColor("#ffffff");
             const barcodeWidth = 2; const barcodeHeight = 1.2;
-            doc.rect(backCoverRightX - barcodeWidth - 0.25, totalHeight - barcodeHeight - 0.25 - bleed, barcodeWidth, barcodeHeight, "F");
+            doc.rect(spineLeftX - barcodeWidth - 0.25, totalHeight - barcodeHeight - 0.25 - bleed, barcodeWidth, barcodeHeight, "F");
             doc.setFontSize(8); doc.setTextColor("#000000");
-            doc.text("Spazio Barcode KDP", backCoverRightX - (barcodeWidth/2) - 0.25, totalHeight - (barcodeHeight/2) - 0.25 - bleed, { align: "center", baseline: "middle" });
+            doc.text("Spazio Barcode KDP", spineLeftX - (barcodeWidth/2) - 0.25, totalHeight - (barcodeHeight/2) - 0.25 - bleed, { align: "center", baseline: "middle" });
 
             doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Cover.pdf`);
         }
