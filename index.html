@@ -611,13 +611,11 @@
             loader.classList.add('active'); status.classList.remove('hidden');
 
             try {
-                // Loop lato client: previene il timeout del serverlessly
                 for (let i = 0; i < generatedTOC.length; i++) {
                     const chapterTitle = generatedTOC[i];
                     status.innerText = `[${i+1}/${generatedTOC.length}] Espansione profonda: ${chapterTitle}...`;
                     progress.style.width = `${((i) / generatedTOC.length) * 100}%`;
 
-                    // Prompt orientato alla massima generazione e profittabilità
                     const prompt = `Stai scrivendo il libro best-seller "${title}". 
                     Scrivi ESCLUSIVAMENTE e integralmente il capitolo: "${chapterTitle}".
                     REGOLE TASSATIVE PER MASSIMIZZARE IL VALORE KDP:
@@ -649,7 +647,6 @@
                     msTextarea.scrollTop = msTextarea.scrollHeight; 
                     updateWordCount();
                     
-                    // Pausa per rispettare eventuali rate-limit delle API gratuite
                     await new Promise(r => setTimeout(r, 2000)); 
                 }
                 progress.style.width = `100%`;
@@ -858,8 +855,9 @@
             }
         }
 
+        // MOTORE COPERTINA PRO-CONVERSION
         function generateCover() {
-            const title = document.getElementById('bookTitle').value || "Titolo";
+            const title = document.getElementById('bookTitle').value || "TITOLO BESTSELLER";
             const subtitle = document.getElementById('bookSubtitle').value;
             const author = document.getElementById('bookAuthor').value || "Autore";
             const backText = document.getElementById('backCoverText').value;
@@ -885,58 +883,75 @@
                 try { doc.addImage(imgElement, "JPEG", frontCoverLeftX, 0, PAGE_WIDTH + bleed, totalHeight); } catch(e) {}
             }
 
-            doc.setTextColor(txtColor);
-            if (pages >= 79) {
-                doc.setFont("helvetica", "bold");
-                let spineFontSize = (spineWidth * 72) * 0.7; 
-                if (spineFontSize > 14) spineFontSize = 14;
-                doc.setFontSize(spineFontSize);
-                doc.text(`${author}        ${title}`, spineCenterX, totalHeight / 2, { angle: 270, align: "center", baseline: "middle" });
-            }
-
+            // --- TITOLO GIGANTE MAIUSCOLO E AD ALTO CONTRASTO ---
             doc.setFont("helvetica", "bold");
-            let maxTitleSize = 65; doc.setFontSize(maxTitleSize);
-            let splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 0.5);
+            let maxTitleSize = 90; // Partenza font gigante
+            doc.setFontSize(maxTitleSize);
             
-            while((splitTitle.length * (maxTitleSize/72)) > (PAGE_HEIGHT / 2.5) || doc.getTextWidth(splitTitle[0]) > PAGE_WIDTH - 0.2) {
-                maxTitleSize -= 5; doc.setFontSize(maxTitleSize);
-                splitTitle = doc.splitTextToSize(title, PAGE_WIDTH - 0.5);
+            let displayTitle = title.toUpperCase(); // Forza maiuscolo per Authority
+            let splitTitle = doc.splitTextToSize(displayTitle, PAGE_WIDTH - 0.4);
+            
+            while((splitTitle.length * (maxTitleSize/72)) > (PAGE_HEIGHT / 2) || doc.getTextWidth(splitTitle[0]) > PAGE_WIDTH - 0.4) {
+                maxTitleSize -= 4; doc.setFontSize(maxTitleSize);
+                splitTitle = doc.splitTextToSize(displayTitle, PAGE_WIDTH - 0.4);
                 if(maxTitleSize < 25) break;
             }
             
+            // Box di contrasto (Opzionale, ma mantiene leggibilità su qualsiasi immagine)
             doc.setFillColor(bgColor);
-            const titleBoxHeight = (splitTitle.length * (maxTitleSize/72) * 1.2) + 0.5;
-            doc.rect(frontCoverLeftX, 0.7, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 0.8 : 0), "F");
+            const titleBoxHeight = (splitTitle.length * (maxTitleSize/72) * 1.15) + 0.6;
+            doc.rect(frontCoverLeftX, 0.4, PAGE_WIDTH + bleed, titleBoxHeight + (subtitle ? 1.0 : 0), "F");
             
-            doc.setTextColor(txtColor); doc.text(splitTitle, frontCenterX, 1 + (maxTitleSize/72), { align: "center" });
+            // Effetto Ombra/Drop-Shadow per staccare il testo in thumbnail
+            doc.setTextColor("#000000"); 
+            doc.text(splitTitle, frontCenterX + 0.04, 0.9 + (maxTitleSize/72) + 0.04, { align: "center" });
+            // Testo Principale
+            doc.setTextColor(txtColor); 
+            doc.text(splitTitle, frontCenterX, 0.9 + (maxTitleSize/72), { align: "center" });
             
+            // --- SOTTOTITOLO ---
             if(subtitle) {
-                doc.setFont("helvetica", "normal"); doc.setFontSize(14);
-                const splitSub = doc.splitTextToSize(subtitle, PAGE_WIDTH - 1.5);
+                doc.setFont("helvetica", "bold"); doc.setFontSize(16);
+                const splitSub = doc.splitTextToSize(subtitle, PAGE_WIDTH - 1.0);
+                
+                doc.setTextColor("#000000"); // Ombra
+                doc.text(splitSub, frontCenterX + 0.02, 1.2 + (titleBoxHeight) - 0.5 + 0.02, { align: "center" });
+                
+                doc.setTextColor(txtColor); // Colore
                 doc.text(splitSub, frontCenterX, 1.2 + (titleBoxHeight) - 0.5, { align: "center" });
             }
             
-            doc.setFillColor(bgColor); doc.rect(frontCoverLeftX, totalHeight - 2.2, PAGE_WIDTH + bleed, 2.2, "F");
+            // --- BOX AUTORE (Massima visibilità) ---
+            doc.setFillColor(bgColor); 
+            doc.rect(frontCoverLeftX, totalHeight - 2.0, PAGE_WIDTH + bleed, 2.0, "F");
             
-            doc.setFont("helvetica", "bold"); doc.setFontSize(22);
-            doc.text(author, frontCenterX, totalHeight - 1.2, { align: "center" });
-            doc.setDrawColor(txtColor); doc.setLineWidth(0.05);
-            doc.line(frontCenterX - 1.5, totalHeight - 1.5, frontCenterX + 1.5, totalHeight - 1.5);
+            doc.setFont("helvetica", "bold"); doc.setFontSize(26);
+            
+            doc.setTextColor("#000000"); // Ombra
+            doc.text(author.toUpperCase(), frontCenterX + 0.02, totalHeight - 1.0 + 0.02, { align: "center" });
+            
+            doc.setTextColor(txtColor); // Colore
+            doc.text(author.toUpperCase(), frontCenterX, totalHeight - 1.0, { align: "center" });
+            
+            doc.setDrawColor(txtColor); doc.setLineWidth(0.08);
+            doc.line(frontCenterX - 2.0, totalHeight - 1.4, frontCenterX + 2.0, totalHeight - 1.4);
 
-            const backCenterX = (PAGE_WIDTH / 2) + (bleed / 2); doc.setFontSize(16);
-            const splitTitleBack = doc.splitTextToSize(title, PAGE_WIDTH - 1.5);
+            // --- RETRO ---
+            const backCenterX = (PAGE_WIDTH / 2) + (bleed / 2); doc.setFontSize(18);
+            const splitTitleBack = doc.splitTextToSize(displayTitle, PAGE_WIDTH - 1.5);
             doc.text(splitTitleBack, backCenterX, 1.5, { align: "center" });
             
-            doc.setFont("helvetica", "normal"); doc.setFontSize(11);
+            doc.setFont("helvetica", "normal"); doc.setFontSize(12);
             const safeBackWidth = PAGE_WIDTH - 1.5; const splitBack = doc.splitTextToSize(backText, safeBackWidth);
             doc.text(splitBack, backCenterX, 2.5 + (splitTitleBack.length * 0.2), { align: "center", maxWidth: safeBackWidth });
 
+            // --- BARCODE ---
             doc.setFillColor("#ffffff"); const barcodeWidth = 2; const barcodeHeight = 1.2;
             doc.rect(spineLeftX - barcodeWidth - 0.25, totalHeight - barcodeHeight - 0.25 - bleed, barcodeWidth, barcodeHeight, "F");
             doc.setFontSize(8); doc.setTextColor("#000000");
             doc.text("Spazio Barcode KDP", spineLeftX - (barcodeWidth/2) - 0.25, totalHeight - (barcodeHeight/2) - 0.25 - bleed, { align: "center", baseline: "middle" });
 
-            doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Cover.pdf`);
+            doc.save(`${title.substring(0,20).replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase()}_Cover_Pro.pdf`);
         }
 
         function downloadFile(content, mimeType, filename) {
