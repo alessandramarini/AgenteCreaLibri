@@ -3,9 +3,9 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { provider, prompt, schema, systemText } = req.body;
+    const { provider, prompt, schema, systemText, type } = req.body;
 
-    // Funzione helper per chiamare Gemini (usata sia come scelta principale che come fallback)
+    // --- HELPER GEMINI (Usato sia di base che come piano B) ---
     async function callGemini() {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
         const headers = { 'Content-Type': 'application/json' };
@@ -30,10 +30,43 @@ export default async function handler(req, res) {
     }
 
     try {
+        // =========================================================
+        // 1. GENERATORE DI IMMAGINI (HIGGSFIELD)
+        // =========================================================
+        if (type === 'image') {
+             if(!process.env.HIGGSFIELD_API_KEY) throw new Error("Chiave Higgsfield mancante.");
+             
+             // NOTA: Usa l'endpoint standard. Se Higgsfield lo modifica, l'errore innesca il fallback sul frontend.
+             const response = await fetch('https://api.higgsfield.ai/v1/images/generations', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${process.env.HIGGSFIELD_API_KEY}`
+                 },
+                 body: JSON.stringify({
+                     model: "flux-2-pro", 
+                     prompt: prompt
+                 })
+             });
+             
+             if (!response.ok) {
+                 const errText = await response.text();
+                 throw new Error(`Higgsfield Image Error: ${errText}`);
+             }
+             
+             const data = await response.json();
+             const imageUrl = data.data?.[0]?.url || data.url;
+             if(!imageUrl) throw new Error("Formato risposta Higgsfield sconosciuto.");
+             
+             return res.status(200).json({ url: imageUrl });
+        }
+
+        // =========================================================
+        // 2. GENERATORE DI TESTO (GROQ ROTATION + GEMINI FALLBACK)
+        // =========================================================
         let aiTextResponse;
 
         if (provider === 'groq') {
-            // Recupera l'array di chiavi separate da virgola
             let keys = [];
             if (process.env.GROQ_API_KEYS) {
                 keys = process.env.GROQ_API_KEYS.split(',').map(k => k.trim()).filter(k => k);
@@ -44,7 +77,7 @@ export default async function handler(req, res) {
             if (keys.length === 0) throw new Error("Nessuna chiave Groq configurata su Vercel.");
 
             const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-            const safeSystemText = systemText || "Sei un assistente AI specializzato in Amazon KDP. Rispondi sempre in formato testo pulito o JSON se richiesto.";
+            const safeSystemText = systemText || "Sei un assistente AI specializzato in Amazon KDP. Rispondi in JSON se richiesto.";
             const messages = [
                 { role: "system", content: safeSystemText },
                 { role: "user", content: prompt }
@@ -63,7 +96,7 @@ export default async function handler(req, res) {
 
             let groqSuccess = false;
 
-            // ROTAZIONE CHIAVI GROQ
+            // Logica di Rotazione Chiavi
             for (let i = 0; i < keys.length; i++) {
                 try {
                     const response = await fetch(endpoint, {
@@ -72,9 +105,9 @@ export default async function handler(req, res) {
                         body: bodyPayload
                     });
 
-                    // Se la chiave ha finito i crediti (429) o è invalida (401), ignora e passa alla successiva
+                    // Se chiave limitata o bloccata, passa alla successiva
                     if (response.status === 429 || response.status === 401 || response.status === 400) {
-                        console.warn(`[API] Chiave Groq ${i + 1} esaurita o bloccata (Status: ${response.status}). Passo alla successiva...`);
+                        console.warn(`[API] Chiave Groq ${i + 1} esaurita (Status: ${response.status}). Passo alla successiva...`);
                         continue; 
                     }
 
@@ -83,16 +116,16 @@ export default async function handler(req, res) {
                     const data = await response.json();
                     aiTextResponse = data.choices?.[0]?.message?.content;
                     groqSuccess = true;
-                    break; // Chiave funzionante, interrompe il ciclo for
+                    break; // Funzionante: interrompe il ciclo
                 } catch (e) {
-                    console.warn(`[API] Errore di rete con Chiave Groq ${i + 1}: ${e.message}`);
+                    console.warn(`[API] Errore Chiave Groq ${i + 1}: ${e.message}`);
                     continue;
                 }
             }
 
-            // FALLBACK EMERGENZA SU GEMINI
+            // Piano B di Emergenza
             if (!groqSuccess) {
-                console.warn("[API] Tutte le chiavi Groq hanno esaurito i crediti. Fallback invisibile su Gemini attivato.");
+                console.warn("[API] Tutte le chiavi Groq sono KO. Attivazione Fallback invisibile su Gemini.");
                 aiTextResponse = await callGemini();
             }
 
@@ -104,7 +137,7 @@ export default async function handler(req, res) {
 
         if (!aiTextResponse) throw new Error("L'AI ha restituito una risposta vuota.");
 
-        // Parsing e invio al frontend
+        // Parsing ed Export finale
         if (schema) {
             let cleanJson = aiTextResponse.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
             return res.status(200).json(JSON.parse(cleanJson));
