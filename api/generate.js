@@ -1,3 +1,6 @@
+// FORZA VERCEL AD ASPETTARE FINO A 60 SECONDI (Evita i Timeout)
+export const maxDuration = 60;
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).end();
     const { provider, prompt, systemText } = req.body;
@@ -18,7 +21,7 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify({
                     "model": "meta-llama/llama-3.1-8b-instruct",
-                    "temperature": 0.3, // <-- IL FIX: blocca le allucinazioni e le parole inventate
+                    "temperature": 0.3, // Precisione massima, zero allucinazioni
                     "top_p": 0.8,
                     "messages": [
                         { "role": "system", "content": systemText || "Sei un esperto KDP." },
@@ -38,7 +41,7 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify({
                     "model": "llama-3.1-70b-versatile",
-                    "temperature": 0.3, // <-- IL FIX
+                    "temperature": 0.3,
                     "top_p": 0.8,
                     "messages": [
                         { "role": "system", "content": systemText || "Sei un esperto KDP." },
@@ -47,7 +50,7 @@ export default async function handler(req, res) {
                 })
             };
         } 
-        // 3. GEMINI (Default)
+        // 3. GEMINI
         else {
             fetchUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
             fetchOptions = {
@@ -57,7 +60,7 @@ export default async function handler(req, res) {
                     contents: [{ parts: [{ text: prompt }] }],
                     systemInstruction: { parts: [{ text: systemText || "Sei un esperto KDP." }] },
                     generationConfig: {
-                        temperature: 0.3, // <-- IL FIX
+                        temperature: 0.3,
                         topP: 0.8
                     }
                 })
@@ -69,7 +72,6 @@ export default async function handler(req, res) {
 
         const data = await response.json();
         
-        // Estrazione del testo in base alla struttura del provider
         const text = (provider === 'gemini') 
             ? data.candidates[0].content.parts[0].text 
             : data.choices[0].message.content;
