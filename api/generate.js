@@ -1,53 +1,39 @@
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
-
+    if (req.method !== 'POST') return res.status(405).end();
     const { provider, prompt, schema, systemText, type } = req.body;
 
     try {
-        // --- 1. GENERAZIONE IMMAGINI (Higgsfield Fallback) ---
         if (type === 'image') {
-            try {
-                const response = await fetch('https://api.higgsfield.ai/v1/images/generations', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${process.env.HIGGSFIELD_API_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: "flux-2-pro", prompt: prompt })
-                });
-                if (!response.ok) throw new Error("Higgsfield fail");
-                const data = await response.json();
-                return res.status(200).json({ url: data.url || data.data[0].url });
-            } catch (e) {
-                const seed = Math.floor(Math.random() * 1000000);
-                return res.status(200).json({ url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=600&seed=${seed}` });
-            }
+            const seed = Math.floor(Math.random() * 1000000);
+            return res.status(200).json({ url: `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=600&seed=${seed}` });
         }
 
-        // --- 2. GENERAZIONE TESTO (Modello aggiornato) ---
-        let aiTextResponse;
+        // Chiamata Gemini ottimizzata
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("API Key mancante");
 
-        if (provider === 'gemini' || provider === 'groq') { // Fallback unificato
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
-            const bodyPayload = {
-                contents: [{ parts: [{ text: prompt + (schema ? "\nJSON Format: " + JSON.stringify(schema) : "") }] }],
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
                 systemInstruction: { parts: [{ text: systemText || "Sei un esperto KDP." }] }
-            };
+            })
+        });
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(bodyPayload)
-            });
-
-            if (!response.ok) throw new Error(await response.text());
-            const data = await response.json();
-            aiTextResponse = data.candidates[0].content.parts[0].text;
-        }
-
-        return res.status(200).json(schema ? JSON.parse(aiTextResponse.replace(/
+        const data = await response.json();
+        const text = data.candidates[0].content.parts[0].text;
+        
+        return res.status(200).json(schema ? JSON.parse(text.replace(/
 http://googleusercontent.com/immersive_entry_chip/0
 
-### Riassunto azionario per te:
-1.  **Sposta i file alla radice** (non tenerti la cartella `kdp-empire-vercel` di mezzo).
-2.  **Svuota la "Root Directory"** nelle impostazioni di Vercel.
-3.  **Aggiorna il file `api/generate.js`** con il codice qui sopra (usa il modello `gemini-1.5-flash` standard, che è il più stabile ora).
+### 3. Debug istantaneo nel tuo `index.html`
+Per capire se il problema è la chiave o il server, apri la console del browser (F12) mentre l'agente gira. Se vedi un errore 500, clicca sulla voce rossa in console: lì troverai il messaggio d'errore reale (es: "API KEY INVALID" o "TIMEOUT").
 
-Fai queste due modifiche e il sistema non avrà più scuse per fermarsi!
+**Nota importante sulla stabilità:**
+Se continui a ricevere `FUNCTION_INVOCATION_FAILED` anche dopo aver aggiornato il codice, significa che Vercel sta faticando a gestire le chiamate lunghe. 
+**Prova a fare questo:**
+1. Vai su Vercel > **Settings** > **Functions**.
+2. Aumenta il **Timeout** della funzione se il piano lo permette, oppure semplicemente esegui un nuovo **Deploy** (Deployment tab -> Redeploy) per forzare il riavvio completo dei server.
+
+Se il problema persiste, conferma se nella dashboard di Vercel, nella sezione **Logs**, compare un errore specifico (es. "Timeout" o "Module not found").
