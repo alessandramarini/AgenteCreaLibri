@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-    // Accetta solo richieste POST
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
@@ -13,40 +12,49 @@ export default async function handler(req, res) {
             endpoint = 'https://api.groq.com/openai/v1/chat/completions';
             headers = {
                 'Content-Type': 'application/json',
-                // Prende la chiave dalle variabili d'ambiente di Vercel
                 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` 
             };
             
+            // Assicuriamoci che il system prompt non sia mai vuoto
+            const safeSystemText = systemText || "Sei un assistente AI specializzato in Amazon KDP. Rispondi sempre in formato testo pulito o JSON se richiesto.";
+
             const messages = [
-                { role: "system", content: systemText },
+                { role: "system", content: safeSystemText },
                 { role: "user", content: prompt }
             ];
 
+            // Groq impone che la parola "json" sia esplicita nel messaggio utente se si usa json_object
             if (schema) {
-                messages[1].content += "\n\nIMPORTANTE: RESTITUISCI SOLO ED ESCLUSIVAMENTE UN OGGETTO JSON VALIDO CHE RISPETTI QUESTA STRUTTURA. NESSUNA INTRODUZIONE:\n" + JSON.stringify(schema);
+                messages[1].content += "\n\nOUTPUT REQUIRED: JSON. You must return ONLY a valid JSON object matching this schema. No markdown, no intro:\n" + JSON.stringify(schema);
             }
 
             bodyPayload = JSON.stringify({
-                model: "llama3-70b-8192",
+                model: "llama-3.3-70b-versatile", // AGGIORNATO AL MODELLO GROQ PIU' RECENTE E STABILE
                 messages: messages,
                 temperature: 0.7,
                 ...(schema && { response_format: { type: "json_object" } })
             });
 
             const response = await fetch(endpoint, { method: 'POST', headers, body: bodyPayload });
-            if (!response.ok) throw new Error(`Groq Error: ${response.status}`);
+            
+            // Se c'è un errore, ORA ESTRAIAMO IL MOTIVO REALE DA GROQ
+            if (!response.ok) {
+                const errorDetails = await response.text();
+                throw new Error(`Dettagli Groq: ${errorDetails}`);
+            }
             
             const data = await response.json();
             aiTextResponse = data.choices?.[0]?.message?.content;
 
         } else if (provider === 'gemini') {
-            // Prende la chiave dalle variabili d'ambiente di Vercel
             endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`; 
             headers = { 'Content-Type': 'application/json' };
             
+            const safeSystemText = systemText || "Sei un assistente AI specializzato in Amazon KDP.";
+
             bodyPayload = {
                 contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemText }] }
+                systemInstruction: { parts: [{ text: safeSystemText }] }
             };
 
             if (schema) {
@@ -54,17 +62,21 @@ export default async function handler(req, res) {
             }
 
             const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(bodyPayload) });
-            if (!response.ok) throw new Error(`Gemini Error: ${response.status}`);
+            
+            if (!response.ok) {
+                const errorDetails = await response.text();
+                throw new Error(`Dettagli Gemini: ${errorDetails}`);
+            }
             
             const data = await response.json();
             aiTextResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
         } else {
-            return res.status(400).json({ error: 'Provider non valido' });
+            return res.status(400).json({ error: 'Provider AI non riconosciuto' });
         }
 
-        if (!aiTextResponse) throw new Error("Risposta vuota dall'AI");
+        if (!aiTextResponse) throw new Error("L'AI ha restituito una risposta vuota.");
 
-        // Formatta la risposta e la invia al frontend
+        // Formatta e spedisci al frontend
         if (schema) {
             let cleanJson = aiTextResponse.replace(/^```(json)?\n?/i, '').replace(/\n?```$/i, '').trim();
             return res.status(200).json(JSON.parse(cleanJson));
@@ -73,7 +85,7 @@ export default async function handler(req, res) {
         }
 
     } catch (error) {
-        console.error(error);
+        console.error("Backend Errore:", error.message);
         return res.status(500).json({ error: error.message });
     }
 }
